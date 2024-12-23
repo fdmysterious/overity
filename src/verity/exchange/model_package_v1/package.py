@@ -30,4 +30,4 @@ def package_archive_create(model_data: MLModelPackage, output_path: Path):
             if model_data.example_implementation_path is not None:
                 archive.add(model_data.example_implementation_path, "inference-example")
 
-    # -> fhandle is now removed
+    # -> fhandle file is removed automatically when exiting the with... clause
