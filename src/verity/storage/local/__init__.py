@@ -10,7 +10,10 @@ import logging
 from pathlib import Path
 from ..base import StorageBackend
 
+from verity.exchange import program_toml
+
 log = logging.getLogger("Local storage")
+
 
 class LocalStorage(StorageBackend):
     def __init__(self, folder: Path):
@@ -59,6 +62,9 @@ class LocalStorage(StorageBackend):
             self.datasets_folder,
         ]
 
+        # Various path
+        self.program_info_path = self.base_folder / "program.toml"
+
 
     def initialize(self):
         """Ensure folder exists and are writeable"""
@@ -74,12 +80,18 @@ class LocalStorage(StorageBackend):
 
     def program_info(self):
         """Get program information"""
-        raise NotImplemented()
+
+        if not self.program_info_path.is_file():
+            raise FileNotFoundError(f"{self.program_info_path} is not a valid file or is not readable")
+
+        program_info = program_toml.from_file(self.program_info_path)
+
+        return program_info
 
 
     def execution_targets(self):
         """Get list of execution targets registered in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     
 
@@ -87,27 +99,27 @@ class LocalStorage(StorageBackend):
 
     def training_optimization_methods(self):
         """Get list of optimization methods registered in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def measurement_qualification_methods(self):
         """Get list of measurement and qualification methods registered in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def deployment_methods(self):
         """Get list of deployment methods registered in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def analysis_methods(self):
         """Get list of analysis methods registered in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def experiments(self):
         """Get list of experiments definitions registered in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
     
 
 
@@ -115,51 +127,51 @@ class LocalStorage(StorageBackend):
 
     def experiment_runs(self):
         """Get list of experiment runs reports in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def optimization_reports(self):
         """Get list of optimization reports in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def execution_reports(self):
         """Get list of execution reports in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def analysis_reports(self):
         """Get list of analysis reports in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     # -------------------------- Precipitates
 
     def models(self):
         """Get list of available models in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def datasets(self):
         """Get list of available datasets in program"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     # -------------------------- Check for IDs
 
     def experiment_run_uuid_exists(self, run_uuid: str):
         """Check if the given uuid exists in experiment run reports"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def optimization_report_uuid_exists(self, report_uuid: str):
         """Check if the given optimization report exists with given uuid"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def execution_report_uuid_exists(self, report_uuid: str):
         """Check if the given execution report exists with given uuid"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def analysis_report_uuid_exists(self, report_uuid: str):
         """Check if the given analysis report exists with given uuid"""
-        raise NotImplemented()
+        raise NotImplementedError()
 
