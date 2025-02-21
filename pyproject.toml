@@ -51,7 +51,7 @@ path = "src/verity/__about__.py"
 ## ---------------------------- Coverage
 
 [tool.coverage.run]
-source_pkgs = ["verity_python", "tests"]
+source_pkgs = ["verity", "tests"]
 branch      = true
 parallel    = true
 omit        = [
