@@ -1,4 +1,5 @@
 from pathlib import Path
+from pprint import pprint
 
 from verity.storage.local import LocalStorage
 
@@ -11,3 +12,7 @@ target_dir = cwd / "storage"
 
 st = LocalStorage(target_dir)
 st.initialize()
+
+prginfo = st.program_info()
+
+pprint(prginfo)

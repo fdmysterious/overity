@@ -31,7 +31,10 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-dependencies = []
+dependencies = [
+	"jsonschema==4.23.0",
+	"toml==0.10.2",
+]
 
 
 # TODO #
