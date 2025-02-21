@@ -5,8 +5,9 @@
 - February 2025
 """
 
-from abc import ABC, abstractmethod
 import uuid
+from abc import ABC, abstractmethod
+from typing import Callable
 
 
 class StorageBackend(ABC):
@@ -102,7 +103,7 @@ class StorageBackend(ABC):
 
     # -------------------------- Generate IDs
     
-    def _default_uuid_get(self, exists_fkt: Callbable[[str], bool]):
+    def _default_uuid_get(self, exists_fkt: Callable[[str], bool]):
         """Default UUID generation for a report. Generate the ID and check if it is available"""
         id = None
         while True:
@@ -115,22 +116,22 @@ class StorageBackend(ABC):
 
     def experiment_run_uuid_get(self):
         """Get an available run uuid"""
-        return self._default_uuid_get(experiment_run_uuid_exists)
+        return self._default_uuid_get(self.experiment_run_uuid_exists)
 
 
     def optimization_report_uuid_get(self):
         """Get an available optimization report uuid"""
-        return self._default_uuid_get(optimization_report_uuid_exists)
+        return self._default_uuid_get(self.optimization_report_uuid_exists)
 
 
     def execution_report_uuid_get(self):
         """Get an available execution report uuid"""
-        return self._default_uuid_get(execution_report_uuid_exists)
+        return self._default_uuid_get(self.execution_report_uuid_exists)
 
 
     def analysis_report_uuid_get(self):
         """Get an available analysis report uuid"""
-        return self._default_uuid_get(analysis_report_uuid_exists)
+        return self._default_uuid_get(self.analysis_report_uuid_exists)
 
 
     # -------------------------- Check for IDs
