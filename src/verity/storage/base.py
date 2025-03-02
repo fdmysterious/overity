@@ -5,7 +5,9 @@
 - February 2025
 """
 
+import re
 import uuid
+
 from abc import ABC, abstractmethod
 from typing import Callable
 
@@ -102,7 +104,13 @@ class StorageBackend(ABC):
 
 
     # -------------------------- Generate IDs
+
+    def _check_is_uuid4(self, string):
+        # is_uuid4 function using regular expression
+        pattern = r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+        return bool(re.match(pattern, string))
     
+
     def _default_uuid_get(self, exists_fkt: Callable[[str], bool]):
         """Default UUID generation for a report. Generate the ID and check if it is available"""
         id = None
@@ -141,15 +149,18 @@ class StorageBackend(ABC):
         """Check if the given uuid exists in experiment run reports"""
         pass
 
+
     @abstractmethod
     def optimization_report_uuid_exists(self, report_uuid: str):
         """Check if the given optimization report exists with given uuid"""
         pass
 
+
     @abstractmethod
     def execution_report_uuid_exists(self, report_uuid: str):
         """Check if the given execution report exists with given uuid"""
         pass
+
 
     @abstractmethod
     def analysis_report_uuid_exists(self, report_uuid: str):
