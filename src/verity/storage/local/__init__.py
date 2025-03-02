@@ -6,11 +6,13 @@
  """
 
 import logging
+import traceback
 
 from pathlib import Path
 from ..base import StorageBackend
 
 from verity.exchange import program_toml
+from verity.exchange import execution_target_toml
 
 log = logging.getLogger("Local storage")
 
@@ -90,10 +92,28 @@ class LocalStorage(StorageBackend):
 
 
     def execution_targets(self):
-        """Get list of execution targets registered in program"""
-        raise NotImplementedError()
+        """Get list of execution targets registered in program as a generator"""
 
-    
+
+        log.debug(f"Get list of execution targets from {self.execution_targets_folder}")
+        
+        # List TOML files in execution target folder
+
+        def process_file(path):
+            log.debug(f"Check file {path}")
+
+            try:
+                extg = execution_target_toml.from_file(path)
+                return extg
+
+            except Exception as exc:
+                log.debug(f"Error checking {path}: {exc!s}")
+                log.debug(traceback.format_exc())
+
+        ex_targets = map(process_file, self.execution_targets_folder.glob("**/*.toml"))
+
+        return ex_targets
+
 
     # -------------------------- Ingredients
 
