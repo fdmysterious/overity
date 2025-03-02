@@ -20,3 +20,13 @@ pprint(prginfo)
 ex_targets = list(st.execution_targets())
 
 pprint(ex_targets)
+
+uid = st.experiment_run_uuid_get()
+uid2 = st.optimization_report_uuid_get()
+uid3 = st.execution_report_uuid_get()
+uid4 = st.analysis_report_uuid_get()
+
+print(uid)
+print(uid2)
+print(uid3)
+print(uid4)

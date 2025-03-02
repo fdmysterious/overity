@@ -78,6 +78,45 @@ class LocalStorage(StorageBackend):
             folder.mkdir(parents=True, exist_ok=True)
 
 
+    # -------------------------- Get file paths
+
+    def _execution_target_path(self, slug: str):
+        return self.execution_targets_folder / f"{slug}.toml"
+
+    def _training_optimization_info_path(self, slug: str):
+        return self.training_optimization_folder / slug / "info.toml"
+
+    def _measurement_qualification_info_path(self, slug: str):
+        return self.measurement_qualification_folder / slug / "info.toml"
+
+    def _deployement_method_info_path(self, slug: str):
+        return self.deployment_folder / slug / "info.toml"
+
+    def _analysis_method_info_path(self, slug: str):
+        return self.analysis_folder / slug / "info.toml"
+
+    def _experiments_method_info_path(self, slug: str):
+        return self.experiments_folder / slug / "info.toml"
+
+    def _experiment_run_report_path(self, run_uuid: str):
+        return self.experiment_runs_folder / f"{run_uuid}.zip"
+
+    def _optimization_report_path(self, run_uuid: str):
+        return self.optimization_reports_folder / f"{run_uuid}.zip"
+
+    def _execution_report_path(self, run_uuid: str):
+        return self.execution_reports_folder / f"{run_uuid}.zip"
+
+    def _analysis_report_path(self, run_uuid: str):
+        return self.analysis_reports_folder / f"{run_uuid}.zip"
+
+    def _model_path(self, slug: str):
+        return self.models_folder / f"{slug}.zip"
+
+    def _dataset_path(self, slug: str):
+        return self.models_folder / f"{slug}.zip"
+
+
     # -------------------------- Catalyst
 
     def program_info(self):
@@ -162,6 +201,9 @@ class LocalStorage(StorageBackend):
 
     def analysis_reports(self):
         """Get list of analysis reports in program"""
+
+        # List of execution reports is implemented as a list of zip files with a uuid4 name
+
         raise NotImplementedError()
 
 
@@ -181,17 +223,25 @@ class LocalStorage(StorageBackend):
 
     def experiment_run_uuid_exists(self, run_uuid: str):
         """Check if the given uuid exists in experiment run reports"""
-        raise NotImplementedError()
+
+        return self._experiment_run_report_path(run_uuid).is_file()
+
+
 
     def optimization_report_uuid_exists(self, report_uuid: str):
         """Check if the given optimization report exists with given uuid"""
-        raise NotImplementedError()
+
+        return self._optimization_report_path(report_uuid).is_file()
+
 
     def execution_report_uuid_exists(self, report_uuid: str):
         """Check if the given execution report exists with given uuid"""
-        raise NotImplementedError()
+
+        return self._execution_report_path(report_uuid).is_file()
+
 
     def analysis_report_uuid_exists(self, report_uuid: str):
         """Check if the given analysis report exists with given uuid"""
-        raise NotImplementedError()
+
+        return self._analysis_report_path(report_uuid).is_file()
 
