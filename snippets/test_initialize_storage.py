@@ -16,3 +16,7 @@ st.initialize()
 prginfo = st.program_info()
 
 pprint(prginfo)
+
+ex_targets = list(st.execution_targets())
+
+pprint(ex_targets)
