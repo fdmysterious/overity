@@ -2,6 +2,6 @@
 #
 # SPDX-License-Identifier: Proprietary
 
-__author__  = "Florian Dupeyron"
-__email__   = "florian.dupeyron@elsys-design.com"
+__author__ = "Florian Dupeyron"
+__email__ = "florian.dupeyron@elsys-design.com"
 __version__ = "0.1.0"

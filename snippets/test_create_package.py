@@ -1,9 +1,8 @@
-from verity.model.ml_model.metadata import MLModelAuthor, MLModelMaintainer, MLModelMetadata
-from verity.model.ml_model.package import MLModelPackage
+from pathlib import Path
 
 from verity.exchange.model_package_v1 import package
-
-from pathlib import Path
+from verity.model.ml_model.metadata import MLModelAuthor, MLModelMaintainer, MLModelMetadata
+from verity.model.ml_model.package import MLModelPackage
 
 cwd = (Path(__file__) / ".." ).resolve()
 
@@ -16,7 +15,7 @@ model_metadata = MLModelMetadata(
         MLModelAuthor(name="Samy Chehade", email="samy.chehade@elsys-design.com", contribution="Model training and adjustmeent"),
         MLModelAuthor(name="Adrien Tirlemont", email="adrien.tirlemont@avisto.com", contribution="Model architecture and initial training")
     ],
-    
+
     maintainers = [
         MLModelMaintainer(name="Florian Dupeyron", email="florian.dupeyron@elsys-design.com"),
     ],

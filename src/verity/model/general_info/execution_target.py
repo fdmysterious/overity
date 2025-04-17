@@ -6,21 +6,18 @@ Execution target information
 """
 
 from dataclasses import dataclass
-from typing      import Optional, FrozenSet
+from typing import FrozenSet, Optional
 
 
 @dataclass
 class ExecutionTarget:
     """An execution target identifies on which target a model can be deployed"""
 
-
     """Slug acts as a text identifier for the execution target"""
     slug: str
 
-
     """Display name for Execution target"""
     display_name: str
-
 
     """Tags can help idnetify this target among others.
 
@@ -28,11 +25,8 @@ class ExecutionTarget:
     """
     tags: FrozenSet[str]
 
-
     """Optional description text."""
     description: Optional[str] = None
 
-
     def __hash__(self):
         return hash(self.slug)
-

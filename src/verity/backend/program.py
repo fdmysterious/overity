@@ -6,11 +6,10 @@
 """
 
 import logging
-
 from pathlib import Path
 
 from verity.backend.errors import ProgramNotFound
-from verity.storage.local  import LocalStorage
+from verity.storage.local import LocalStorage
 
 log = logging.getLogger("backend.program")
 
@@ -18,6 +17,7 @@ log = logging.getLogger("backend.program")
 ########################################
 # Find program.toml file
 ########################################
+
 
 def is_program(path: Path):
     """Indicates if the current folder is the root folder of a program"""
@@ -49,9 +49,9 @@ def find_current(start_path: Path):
             log.debug(f"Check parent path: {subpath}")
 
             if is_program(subpath):
-                return sub_path
-        else:
-            raise ProgramNotFound(start_path=start_path, recursive=True)
+                return subpath
+
+        raise ProgramNotFound(start_path=start_path, recursive=True)
 
 
 def infos(path: Path):

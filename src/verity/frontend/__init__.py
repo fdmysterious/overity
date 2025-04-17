@@ -7,11 +7,10 @@
 
 import sys
 
-from . import program
+from verity.frontend import program
 
-CLI_GROUPS = {
-    "program": program
-}
+CLI_GROUPS = {"program": program}
+
 
 def main():
     # Imports and initial setup
@@ -19,8 +18,8 @@ def main():
 
     # Setup argument parser
     parser = argparse.ArgumentParser(
-        prog        = "verity",
-        description = "Toolkit for AI training, optimization and validation on embedded systems",
+        prog="verity",
+        description="Toolkit for AI training, optimization and validation on embedded systems",
     )
 
     cmdgroup = parser.add_subparsers(dest="cmdgroup")

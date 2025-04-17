@@ -56,17 +56,14 @@ class MLModelMetadata:
     """
     target: str
 
-
     """Format of the model
 
     Example formats may include "onnx", "keras", "tf", "tflite", etc.
     """
     exchange_format: str
 
-
     """Relative to input model file in the package archive file"""
     model_file: str
-
 
     """Optional identification string indicating which model this model derives from"""
     derives: Optional[str] = None

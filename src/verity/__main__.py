@@ -5,7 +5,7 @@
 - March 2025
 """
 
-from . import frontend
+from verity import frontend
 
 if __name__ == "__main__":
     frontend.main()
