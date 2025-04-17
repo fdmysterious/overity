@@ -44,7 +44,9 @@ def from_file(path: Path, kind: MethodKind):
     slug = _extract_slug(path)
 
     if docstr is not None:
-        return description_md.from_md_desc(x=docstr, slug=slug, kind=kind)
+        return description_md.from_md_desc(
+            x=docstr, slug=slug, kind=kind, file_path=path
+        )
 
     else:
         raise EmptyMethodDescription(file_path=path)

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
+from pathlib import Path
 
 from verity.model.general_info.method import MethodAuthor, MethodInfo, MethodKind
 
@@ -61,11 +62,12 @@ _GRAMMAR = Grammar(
 class MethodMdDescVisitor(NodeVisitor):
     """Node visitor for markdown header"""
 
-    def __init__(self, slug: str, kind: MethodKind):
+    def __init__(self, slug: str, kind: MethodKind, file_path: Path):
         super().__init__()
 
         self.slug = slug
         self.kind = kind
+        self.file_path = file_path
 
     def visit_method_desc(self, node, visited_children):
         display_name, fields, author_list, description = visited_children
@@ -73,10 +75,11 @@ class MethodMdDescVisitor(NodeVisitor):
         return MethodInfo(
             slug=self.slug,
             kind=self.kind,
-            display_name=display_name[0],
+            display_name=display_name[0][0],
             authors=author_list,
             metadata=fields,
             description=description,
+            path=self.file_path,
         )
 
     def visit_md_h1_title_hash(self, node, visited_children):
@@ -128,12 +131,16 @@ class MethodMdDescVisitor(NodeVisitor):
 # --------------------------- Public interface
 
 
-def from_md_desc(slug: str, kind: MethodKind, x: str) -> MethodInfo:
+def from_md_desc(
+    slug: str, kind: MethodKind, x: str, file_path: Path | None = None
+) -> MethodInfo:
     """Parse method information from markdown header"""
 
     ast = _GRAMMAR.parse(x)
     visitor = MethodMdDescVisitor(
-        slug=slug, kind=kind
-    )  # TODO: Complete with other attributes to qualify method kind and slug?
+        slug=slug,
+        kind=kind,
+        file_path=file_path,
+    )
 
     return visitor.visit(ast)

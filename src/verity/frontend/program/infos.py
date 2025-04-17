@@ -11,7 +11,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 from verity.backend import program as program_backend
-from verity.backend.errors import ProgramNotFound
+from verity.errors import ProgramNotFound
 
 log = logging.getLogger("frontend.program.infos")
 

@@ -9,6 +9,7 @@ Model classes to describe a method
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from enum import Enum
 
 
@@ -63,3 +64,6 @@ class MethodInfo:
 
     """Optional description text"""
     description: str | None
+
+    """Optional original file path"""
+    path: Path | None

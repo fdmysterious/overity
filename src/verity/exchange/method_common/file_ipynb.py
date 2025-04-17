@@ -50,7 +50,9 @@ def from_file(path: Path, kind: MethodKind):
         if not md_text:
             raise EmptyMethodDescription(file_path=path)
 
-        infos = description_md.from_md_desc(x=md_text, slug=slug, kind=kind)
+        infos = description_md.from_md_desc(
+            x=md_text, slug=slug, kind=kind, file_path=path
+        )
 
         return infos
 
