@@ -13,6 +13,7 @@ from parsimonious.nodes import NodeVisitor
 
 from verity.model.general_info.method import MethodAuthor, MethodInfo, MethodKind
 
+
 # --------------------------- Grammar
 
 _GRAMMAR = Grammar(
@@ -60,15 +61,18 @@ _GRAMMAR = Grammar(
 class MethodMdDescVisitor(NodeVisitor):
     """Node visitor for markdown header"""
 
-    def __init__(self):
+    def __init__(self, slug: str, kind: MethodKind):
         super().__init__()
+
+        self.slug = slug
+        self.kind = kind
 
     def visit_method_desc(self, node, visited_children):
         display_name, fields, author_list, description = visited_children
 
         return MethodInfo(
-            slug="",  # TODO: Implement
-            kind=MethodKind.TrainingOptimization,  # TODO: Implement
+            slug=self.slug,
+            kind=self.kind,
             display_name=display_name[0],
             authors=author_list,
             metadata=fields,
@@ -124,12 +128,12 @@ class MethodMdDescVisitor(NodeVisitor):
 # --------------------------- Public interface
 
 
-def from_md_desc(x: str) -> MethodInfo:
+def from_md_desc(slug: str, kind: MethodKind, x: str) -> MethodInfo:
     """Parse method information from markdown header"""
 
     ast = _GRAMMAR.parse(x)
-    visitor = (
-        MethodMdDescVisitor()
+    visitor = MethodMdDescVisitor(
+        slug=slug, kind=kind
     )  # TODO: Complete with other attributes to qualify method kind and slug?
 
     return visitor.visit(ast)

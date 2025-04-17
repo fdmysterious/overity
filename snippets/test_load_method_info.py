@@ -1,6 +1,7 @@
 from pathlib import Path
 from pprint import pprint
 
+from verity.model.general_info.method import MethodKind
 from verity.exchange.method_common import file_py
 from verity.exchange.method_common import file_ipynb
 
@@ -9,8 +10,8 @@ test_method = cwd / "storage" / "ingredients" / "training_optimization" / "lstm_
 test_method2 = cwd / "storage" / "ingredients" / "training_optimization" / "lstm_init.ipynb"
 
 
-method_info  = file_py.from_file(test_method)
-method_info2 = file_ipynb.from_file(test_method2)
+method_info  = file_py.from_file(test_method, kind=MethodKind.TrainingOptimization)
+method_info2 = file_ipynb.from_file(test_method2, kind=MethodKind.TrainingOptimization)
 
 
 pprint(method_info)
