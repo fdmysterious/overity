@@ -7,6 +7,8 @@
 
 import logging
 import traceback
+from textwrap import wrap
+
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
@@ -27,8 +29,21 @@ def run(args: Namespace):
         pdir = program_backend.find_current(start_path=cwd)
         prginfo = program_backend.infos(pdir)
 
+        title_str = f"Program: {prginfo.display_name}"
+        print("")
+        print(title_str)
+        print("=" * len(title_str))
+        print("")
+        print(f"- Slug:         {prginfo.slug}")
+        print(f"- Created:      {prginfo.date_created}")
+        print(
+            f"- Initiated by: {prginfo.initiator.name} ({prginfo.initiator.email})"
+            + (f": {prginfo.initiator.role}" if prginfo.initiator.role else "")
+        )
+        print("")
+
         if prginfo.description is not None:
-            pass
+            print("\n".join(wrap(prginfo.description, width=70)))
 
     except ProgramNotFound as exc:
         log.exception(str(exc))
