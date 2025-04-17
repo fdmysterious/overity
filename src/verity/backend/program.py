@@ -8,7 +8,7 @@
 import logging
 from pathlib import Path
 
-from verity.backend.errors import ProgramNotFound
+from verity.errors import ProgramNotFound
 from verity.storage.local import LocalStorage
 
 log = logging.getLogger("backend.program")

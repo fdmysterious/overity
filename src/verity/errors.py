@@ -13,3 +13,10 @@ class EmptyMethodDescription(Exception):
     def __init__(self, file_path: Path):
         super().__init__(f"No method description found in file: {file_path!s}")
         self.file_path = file_path
+
+
+class ProgramNotFound(Exception):
+    def __init__(self, start_path: Path, recursive: bool = False):
+        super().__init__(
+            f"No program storage found starting from {start_path}. Recursive search was {'on' if recursive else 'off'}"
+        )
