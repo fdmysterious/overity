@@ -6,29 +6,33 @@
 """
 
 import json
-
 from pathlib import Path
-from verity.model.ml_model.metadata import MLModelAuthor, MLModelMaintainer, MLModelMetadata
 from typing import Dict
 
+from verity.model.ml_model.metadata import (
+    MLModelAuthor,
+    MLModelMaintainer,
+    MLModelMetadata,
+)
 
 ####################################################
 # Decoder
 ####################################################
+
 
 def _metadata_decode_model_author(data: Dict[str, any]):
     name = data["name"]
     email = data["email"]
     contribution = data.get("contribution")
 
-    return MLModelAuthor(name = name, email = email, contribution = contribution)
+    return MLModelAuthor(name=name, email=email, contribution=contribution)
 
 
 def _metadata_decode_model_maintainer(data: Dict[str, any]):
     name = data["name"]
     email = data["email"]
 
-    return MLModelMaintainer(name = name, email = email)
+    return MLModelMaintainer(name=name, email=email)
 
 
 def _metadata_decode(data: Dict[str, any]):
@@ -42,35 +46,35 @@ def _metadata_decode(data: Dict[str, any]):
     derives = data.get("derives")
 
     return MLModelMetadata(
-        name = name,
-        version = version,
-        authors = authors,
-        maintainers = maintainers,
-        target = target,
-        exchange_format = exchange_format,
-        model_file = model_file,
-        derives = derives,
+        name=name,
+        version=version,
+        authors=authors,
+        maintainers=maintainers,
+        target=target,
+        exchange_format=exchange_format,
+        model_file=model_file,
+        derives=derives,
     )
+
 
 def from_file(json_path: Path):
     json_path = Path(json_path)
 
     # Parse JSON data
-    with open(json_path, "r") as fhandle:
+    with open(json_path) as fhandle:
         data = json.load(fhandle)
 
     # Validate file schema
     # TODO
 
     # Process elements
-    metadata = _metadata_decode(data)
-
-    return metadata
+    return _metadata_decode(data)
 
 
 ####################################################
 # Encoder
 ####################################################
+
 
 def _metadata_encode_model_author(author: MLModelAuthor):
     encode_obj = {
@@ -96,7 +100,9 @@ def _metadata_encode(metadata: MLModelMetadata):
         "name": metadata.name,
         "version": metadata.version,
         "authors": [_metadata_encode_model_author(x) for x in metadata.authors],
-        "maintainers": [_metadata_encode_model_maintainer(x) for x in metadata.maintainers],
+        "maintainers": [
+            _metadata_encode_model_maintainer(x) for x in metadata.maintainers
+        ],
         "target": metadata.target,
         "format": metadata.exchange_format,
         "model_file": metadata.model_file,
@@ -109,7 +115,7 @@ def _metadata_encode(metadata: MLModelMetadata):
 
 
 def to_file(metadata: MLModelMetadata, json_path: Path):
-    json_path = Path(json_path) # Ensure path is in correct type
+    json_path = Path(json_path)  # Ensure path is in correct type
 
     with open(json_path, "w") as fhandle:
         json.dump(_metadata_encode(metadata), fhandle)

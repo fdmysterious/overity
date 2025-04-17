@@ -5,9 +5,9 @@ Model classes to describe a method
 - Florian Dupeyron (florian.dupeyron@elsys-design.com)
 - April 2025
 """
+
 from __future__ import annotations
 
-from datetime import datetime as dt
 from dataclasses import dataclass
 from enum import Enum
 
@@ -25,7 +25,7 @@ class MethodKind(Enum):
     Deployment = "deployment"
 
     """Analysis method is to do comparative analysis"""
-    Analysis  = "analysis"
+    Analysis = "analysis"
 
 
 @dataclass

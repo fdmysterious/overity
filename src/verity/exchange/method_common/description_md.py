@@ -8,17 +8,15 @@ Parse method information from markdown description
 
 from __future__ import annotations
 
-from textwrap import dedent
-
-from verity.model.general_info.method import MethodKind, MethodAuthor, MethodInfo
-
 from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
 
+from verity.model.general_info.method import MethodAuthor, MethodInfo, MethodKind
 
 # --------------------------- Grammar
 
-_GRAMMAR = Grammar(r"""
+_GRAMMAR = Grammar(
+    r"""
     method_desc           = display_name fields author_list description
 
     display_name          = md_h1_title emptyline+
@@ -50,12 +48,14 @@ _GRAMMAR = Grammar(r"""
     text                  = ~r"[^\n\r]"
     word                  = ~r"\w"
     hash                  = ~r"\#"
-    ws                    = ~r"\s" 
+    ws                    = ~r"\s"
     nl                    = ~r"\n"
-""")
+"""
+)
 
 
 # --------------------------- Node visitor
+
 
 class MethodMdDescVisitor(NodeVisitor):
     """Node visitor for markdown header"""
@@ -67,14 +67,13 @@ class MethodMdDescVisitor(NodeVisitor):
         display_name, fields, author_list, description = visited_children
 
         return MethodInfo(
-            slug         = "", # TODO: Implement
-            kind         = MethodKind.TrainingOptimization, # TODO: Implement
-            display_name = display_name[0],
-            authors      = author_list,
-            metadata     = fields,
-            description  = description,
+            slug="",  # TODO: Implement
+            kind=MethodKind.TrainingOptimization,  # TODO: Implement
+            display_name=display_name[0],
+            authors=author_list,
+            metadata=fields,
+            description=description,
         )
-
 
     def visit_md_h1_title_hash(self, node, visited_children):
         return node.children[2].text.strip()
@@ -83,18 +82,15 @@ class MethodMdDescVisitor(NodeVisitor):
         return node.children[0].text.strip()
 
     def visit_author_list(self, node, visited_children):
-        authors = visited_children
-
-        return authors
-
+        return visited_children
 
     def visit_author_item(self, node, visited_children):
         _, _, author_name, _, author_mail, author_contribution_opt, _ = visited_children
 
         return MethodAuthor(
-            name         = author_name,
-            email        = author_mail,
-            contribution = author_contribution_opt,
+            name=author_name,
+            email=author_mail,
+            contribution=author_contribution_opt,
         )
 
     def visit_author_name(self, node, visited_children):
@@ -110,7 +106,7 @@ class MethodMdDescVisitor(NodeVisitor):
         return node.children[3].text.strip()
 
     def visit_fields(self, node, visited_children):
-        return dict((x,y) for x,y in visited_children)
+        return dict(visited_children)
 
     def visit_field(self, node, visited_children):
         return (visited_children[0], node.children[4].text)
@@ -127,11 +123,13 @@ class MethodMdDescVisitor(NodeVisitor):
 
 # --------------------------- Public interface
 
+
 def from_md_desc(x: str) -> MethodInfo:
     """Parse method information from markdown header"""
 
     ast = _GRAMMAR.parse(x)
-    visitor = MethodMdDescVisitor() # TODO: Complete with other attributes to qualify method kind and slug?
+    visitor = (
+        MethodMdDescVisitor()
+    )  # TODO: Complete with other attributes to qualify method kind and slug?
 
     return visitor.visit(ast)
-

@@ -5,19 +5,15 @@
 - March 2025
 """
 
-
 from argparse import ArgumentParser, Namespace
 
-from . import infos
+from verity.frontend.program import infos
 
-CLI_SUBCOMMANDS = {
-    "infos": infos
-}
+CLI_SUBCOMMANDS = {"infos": infos}
+
 
 def setup_parser(parser: ArgumentParser):
-    subcommand = parser.add_parser(
-        "program", help="Program manipulation"
-    )
+    subcommand = parser.add_parser("program", help="Program manipulation")
     subparsers = subcommand.add_subparsers(dest="program_subcommand")
 
     for cmd in CLI_SUBCOMMANDS.values():

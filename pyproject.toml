@@ -64,7 +64,7 @@ omit        = [
 
 [tool.coverage.paths]
 verity = ["src/verity", "*/verity-python/src/verity"]
-tests                         = ["tests", "*/test-template/tests"]
+tests  = ["tests", "*/test-template/tests"]
 
 [tool.coverage.report]
 exclude_lines = [

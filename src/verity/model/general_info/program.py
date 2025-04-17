@@ -5,9 +5,10 @@
 - February 2025
 """
 
-from datetime    import date
 from dataclasses import dataclass
-from typing      import Optional
+from datetime import date
+from typing import Optional
+
 
 @dataclass
 class ProgramInitiator:
