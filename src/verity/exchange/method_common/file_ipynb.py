@@ -12,11 +12,19 @@ import nbformat
 
 from pathlib import Path
 
+from verity.model.general_info.method import MethodKind
 from verity.errors import EmptyMethodDescription
 from verity.exchange.method_common import description_md
 
 
 # --------------------------- Private interface
+
+
+def _extract_slug(path: Path):
+    path = Path(path)
+    slug = path.stem
+
+    return slug
 
 
 def _extract_first_md_cell(path: Path):
@@ -31,8 +39,9 @@ def _extract_first_md_cell(path: Path):
 # --------------------------- Public interface
 
 
-def from_file(path: Path):
+def from_file(path: Path, kind: MethodKind):
     path = Path(path)
+    slug = _extract_slug(path)
 
     try:
         md_desc = _extract_first_md_cell(path=path)
@@ -41,7 +50,7 @@ def from_file(path: Path):
         if not md_text:
             raise EmptyMethodDescription(file_path=path)
 
-        infos = description_md.from_md_desc(md_text)
+        infos = description_md.from_md_desc(x=md_text, slug=slug, kind=kind)
 
         return infos
 
