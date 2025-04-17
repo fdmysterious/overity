@@ -1,0 +1,65 @@
+"""
+Model classes to describe a method
+==================================
+
+- Florian Dupeyron (florian.dupeyron@elsys-design.com)
+- April 2025
+"""
+from __future__ import annotations
+
+from datetime import datetime as dt
+from dataclasses import dataclass
+from enum import Enum
+
+
+class MethodKind(Enum):
+    """Describe what this method is for"""
+
+    """Traning and optimization is for creating new models"""
+    TrainingOptimization = "training_optimization"
+
+    """Measurement and qualification is to assess requirements and performances on a model"""
+    MeasurementQualification = "measurement_qualification"
+
+    """Deployment method is to deploy the method on execution target"""
+    Deployment = "deployment"
+
+    """Analysis method is to do comparative analysis"""
+    Analysis  = "analysis"
+
+
+@dataclass
+class MethodAuthor:
+    """Describes an author for a method"""
+
+    """Name of the author"""
+    name: str
+
+    """Email of the author"""
+    email: str
+
+    """Optional contribution details"""
+    contribution: str | None
+
+
+@dataclass
+class MethodInfo:
+    """Contains method metadata information"""
+
+    """Slug identifier for this method"""
+    slug: str
+
+    """What this method is for"""
+    kind: MethodKind
+
+    """Display name"""
+    display_name: str
+
+    """Authors for this method"""
+    authors: list[MethodAuthor]
+
+    """Metadata fields"""
+    metadata: dict[str, str]
+
+    """Optional description text"""
+    description: str | None
