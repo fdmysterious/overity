@@ -20,3 +20,11 @@ class ProgramNotFound(Exception):
         super().__init__(
             f"No program storage found starting from {start_path}. Recursive search was {'on' if recursive else 'off'}"
         )
+
+
+class DuplicateSlugError(Exception):
+    def __init__(self, path: Path, slug: str):
+        super().__init__(f"Duplicate slug found in {path!s}: {slug!s}")
+
+        self.path = path
+        self.slug = slug

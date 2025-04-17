@@ -6,11 +6,15 @@
 """
 
 import logging
+import itertools
 import traceback
 from pathlib import Path
 
+from verity.model.general_info.method import MethodKind, MethodInfo
+
 from verity.exchange import execution_target_toml, program_toml
 from verity.storage.base import StorageBackend
+from verity.exchange.method_common import file_ipynb, file_py
 
 log = logging.getLogger("Local storage")
 
@@ -82,20 +86,20 @@ class LocalStorage(StorageBackend):
     def _execution_target_path(self, slug: str):
         return self.execution_targets_folder / f"{slug}.toml"
 
-    def _training_optimization_info_path(self, slug: str):
-        return self.training_optimization_folder / slug / "info.toml"
+    # def _training_optimization_info_path(self, slug: str):
+    #    return self.training_optimization_folder / slug / "info.toml"
 
-    def _measurement_qualification_info_path(self, slug: str):
-        return self.measurement_qualification_folder / slug / "info.toml"
+    # def _measurement_qualification_info_path(self, slug: str):
+    #    return self.measurement_qualification_folder / slug / "info.toml"
 
-    def _deployement_method_info_path(self, slug: str):
-        return self.deployment_folder / slug / "info.toml"
+    # def _deployement_method_info_path(self, slug: str):
+    #    return self.deployment_folder / slug / "info.toml"
 
-    def _analysis_method_info_path(self, slug: str):
-        return self.analysis_folder / slug / "info.toml"
+    # def _analysis_method_info_path(self, slug: str):
+    #    return self.analysis_folder / slug / "info.toml"
 
-    def _experiments_method_info_path(self, slug: str):
-        return self.experiments_folder / slug / "info.toml"
+    # def _experiments_method_info_path(self, slug: str):
+    #    return self.experiments_folder / slug / "info.toml"
 
     def _experiment_run_report_path(self, run_uuid: str):
         return self.experiment_runs_folder / f"{run_uuid}.zip"
@@ -149,7 +153,31 @@ class LocalStorage(StorageBackend):
 
     def training_optimization_methods(self):
         """Get list of optimization methods registered in program"""
-        raise NotImplementedError
+
+        def process_file(x: Path):
+            try:
+                ext = x.suffix
+
+                if ext == ".py":
+                    return file_py.from_file(x, kind=MethodKind.TrainingOptimization)
+                elif ext == ".ipynb":
+                    return file_ipynb.from_file(x, kind=MethodKind.TrainingOptimization)
+
+            except Exception as exc:
+                return (x, exc)
+
+        # Process files
+        py_files = self.training_optimization_folder.glob("*.py")
+        ipynb_files = self.training_optimization_folder.glob("*.ipynb")
+        processed = list(map(process_file, itertools.chain(py_files, ipynb_files)))
+
+        # Isolate found methods and errors
+        found_methods = list(filter(lambda x: isinstance(x, MethodInfo), processed))
+        found_errors = list(filter(lambda x: isinstance(x, tuple), processed))
+
+        # Look for duplicates in found methods
+
+        return found_methods, found_errors
 
     def measurement_qualification_methods(self):
         """Get list of measurement and qualification methods registered in program"""
