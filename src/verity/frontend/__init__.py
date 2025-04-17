@@ -8,8 +8,9 @@
 import sys
 
 from verity.frontend import program
+from verity.frontend import method
 
-CLI_GROUPS = {"program": program}
+CLI_GROUPS = {"program": program, "method": method}
 
 
 def main():
