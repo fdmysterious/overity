@@ -1,0 +1,114 @@
+"""
+Artifact traceability data model
+================================
+
+- Florian Dupeyron (florian.dupeyron@elsys-design.com)
+- April 2025
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import Enum
+from functools import reduce
+
+
+class ArtifactKind(Enum):
+    """Indicates what is the kind of the artefact"""
+
+    # Catalyst
+    ExecutionTargetInfo = "execution_target_info"
+
+    # Ingredients
+    AnalysisMethod = "analysis_method"
+    DeploymentMethod = "deployment_method"
+    MeasurementQualificationMethod = "measurement_qualification_method"
+    TrainingOptimizationMethod = "training_optimization_method"
+
+    # Precipitates
+    Dataset = "dataset"
+    Model = "model"
+
+    # Shelf
+    AnalysisReport = "analysis_report"
+    ExecutionReport = "execution_report"
+    ExperimentRun = "experiment_run"
+    OptimizationReport = "optimization_report"
+
+    # Runs
+    OptimizationRun = "optimization_run"
+
+
+class ArtifactLinkKind(Enum):
+    """Categorize the link between two artifacts"""
+
+    """Links a run to an used model"""
+    ModelUse = "model_use"
+
+    """Links a run to an used method"""
+    MethodUse = "method_use"
+
+    """Links a run to an used dataset"""
+    DatasetUse = "dataset_use"
+
+    """Links a dataset to the dataset it is extracted from"""
+    DatasetSubsetFrom = "dataset_subset_from"
+
+    """Links a model to the run that generated it"""
+    ModelGeneratedBy = "model_generated_by"
+
+    """Links a report to its corresponding run"""
+    ReportFor = "report_for"
+
+
+@dataclass(frozen=True, eq=True)
+class ArtifactKey:
+    """Identifies an artifact into the dependency graph"""
+
+    """What is the kind of the artifact"""
+    kind: ArtifactKind
+
+    """What is the identifier (slug or uuid) of the targetted artifact?"""
+    id: str
+
+
+@dataclass(frozen=True, eq=True)
+class ArtifactLink:
+    """Identifies the link between two artifacts
+
+    The link between two artifacts should be child to parent. For instance, if a training method
+    uses a specific dataset, a = the training method, b = the used dataset.
+    """
+
+    """What is the kind of link between the two artifacts?"""
+    kind: ArtifactLinkKind
+
+    """Starting point"""
+    a: ArtifactKey
+
+    """Target artefact"""
+    b: ArtifactKey
+
+
+@dataclass
+class ArtifactGraph:
+    """Links between the nodes"""
+
+    links: set[ArtifactLink] = field(default_factory=set)
+
+    @property
+    def nodes(self):
+        """Return the set of nodes in the graph"""
+
+        # Build a set containing the two nodes a and b, and
+        # combine all the generated sets.
+        return reduce(
+            frozenset.union,
+            map(lambda lk: frozenset({lk.a, lk.b}), self.links),
+            frozenset(),
+        )
+
+    def add(self, lk: ArtifactLink):
+        assert isinstance(lk, ArtifactLink), type(lk)
+
+        self.links.add(lk)
