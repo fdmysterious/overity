@@ -5,6 +5,8 @@
 - March 2025
 """
 
+from __future__ import annotations
+
 from argparse import ArgumentParser, Namespace
 
 from verity.frontend.program import infos
@@ -20,6 +22,8 @@ def setup_parser(parser: ArgumentParser):
 
     for cmd in CLI_SUBCOMMANDS.values():
         cmd.setup_parser(subparsers)
+
+    return subcommand
 
 
 def run(args: Namespace):

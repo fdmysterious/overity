@@ -19,7 +19,9 @@ log = logging.getLogger("frontend.program.infos")
 
 
 def setup_parser(parser: ArgumentParser):
-    parser.add_parser("infos", help="Get informations on program in current folder")
+    return parser.add_parser(
+        "infos", help="Get informations on program in current folder"
+    )
 
 
 def run(args: Namespace):
