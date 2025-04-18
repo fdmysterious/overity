@@ -10,7 +10,8 @@ import sys
 from verity.frontend import program
 from verity.frontend import method
 
-CLI_GROUPS = {"program": program, "method": method}
+
+CLI_GROUPS = {program, method}
 
 
 def main():
@@ -25,15 +26,15 @@ def main():
 
     cmdgroup = parser.add_subparsers(dest="cmdgroup")
 
-    for cmd in CLI_GROUPS.values():
-        cmd.setup_parser(cmdgroup)
+    for cmd in CLI_GROUPS:
+        subp = cmd.setup_parser(cmdgroup)
+        subp.set_defaults(target=cmd.run)
 
     # Parse the arguments
     args = parser.parse_args()
 
-    if args.cmdgroup is None:
+    if (args.cmdgroup is None) or not hasattr(args, "target"):
         parser.print_help(sys.stderr)
         sys.exit(1)
     else:
-        cmd = CLI_GROUPS[args.cmdgroup]
-        cmd.run(args)
+        args.target(args)

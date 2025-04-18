@@ -10,7 +10,7 @@ from argparse import ArgumentParser, Namespace
 
 from verity.frontend.method import list_cmd
 
-CLI_SUBCOMMANDS = {"list": list_cmd}
+CLI_SUBCOMMANDS = {list_cmd}
 
 
 def setup_parser(parser: ArgumentParser):
@@ -19,12 +19,13 @@ def setup_parser(parser: ArgumentParser):
     )
     subparsers = subcommand.add_subparsers(dest="method_subcommand")
 
-    for cmd in CLI_SUBCOMMANDS.values():
-        cmd.setup_parser(subparsers)
+    for cmd in CLI_SUBCOMMANDS:
+        subp = cmd.setup_parser(subparsers)
+        subp.set_defaults(method_subcommand_clbk=cmd)
+
+    return subcommand
 
 
 def run(args: Namespace):
-    k_cmd = args.method_subcommand
-
-    if k_cmd in CLI_SUBCOMMANDS:
-        CLI_SUBCOMMANDS[k_cmd].run(args)
+    if hasattr(args, "method_subcommand_clbk"):
+        args.method_subcommand_clbk.run(args)

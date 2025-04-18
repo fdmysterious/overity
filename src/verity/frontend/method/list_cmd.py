@@ -31,6 +31,8 @@ def setup_parser(parser: ArgumentParser):
         "kind", type=types.parse_method_kind, help="What method kind to list"
     )
 
+    return subcommand
+
 
 def run(args: Namespace):
     cwd = Path.cwd()
