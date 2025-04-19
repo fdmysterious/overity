@@ -16,6 +16,8 @@ from verity.exchange import execution_target_toml, program_toml
 from verity.storage.base import StorageBackend
 from verity.exchange.method_common import file_ipynb, file_py
 
+from verity.errors import DuplicateSlugError
+
 log = logging.getLogger("Local storage")
 
 
@@ -176,6 +178,20 @@ class LocalStorage(StorageBackend):
         found_errors = list(filter(lambda x: isinstance(x, tuple), processed))
 
         # Look for duplicates in found methods
+        mtd_dict = {}
+        for mtd in found_methods:
+            mtd_dict[mtd.slug] = (mtd_dict.get(mtd.slug) or []) + [mtd]
+
+        duplicates = {k: v for k, v in mtd_dict.items() if len(v) > 1}
+
+        for slug, mtds in duplicates.items():
+            for mtd in mtds:
+                found_errors.append(
+                    (
+                        mtd.path,
+                        DuplicateSlugError(mtd.path, slug),
+                    )
+                )
 
         return found_methods, found_errors
 
