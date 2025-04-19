@@ -45,12 +45,20 @@ def run(args: Namespace):
 
             # Display results
             print("")
+            print(f"Found the following methods in {pdir}:")
+            print("")
             for mtd in methods:
-                print(f" - {mtd.slug}: {mtd.display_name!r} (in {mtd.path})")
+                print(
+                    f" - {mtd.slug}: {mtd.display_name!r} (in {mtd.path.relative_to(pdir)})"
+                )
+
+            if not methods:
+                print("- No method found")
 
             if errors:
                 print("")
                 print("While processing, the following errors has been found:")
+                print("")
                 for fpath, err in errors:
                     print(f"- in {fpath!s}: {err!s}")
 
