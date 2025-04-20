@@ -96,6 +96,10 @@ class ArtifactGraph:
 
     links: set[ArtifactLink] = field(default_factory=set)
 
+    @classmethod
+    def default(cls):
+        return cls()
+
     @property
     def nodes(self):
         """Return the set of nodes in the graph"""

@@ -10,6 +10,8 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Callable
 
+from verity.model.general_info.method import MethodKind
+
 
 class StorageBackend(ABC):
 
@@ -84,7 +86,7 @@ class StorageBackend(ABC):
         """Default UUID generation for a report. Generate the ID and check if it is available"""
         id = None
         while True:
-            id = uuid.uuid4()
+            id = str(uuid.uuid4())
             if not exists_fkt(id):
                 break
 
@@ -105,6 +107,21 @@ class StorageBackend(ABC):
     def analysis_report_uuid_get(self):
         """Get an available analysis report uuid"""
         return self._default_uuid_get(self.analysis_report_uuid_exists)
+
+    def method_report_uuid_get(self, kind: MethodKind):
+        """Get an available report for a given method kind"""
+
+        # FIXME: How to process Measurement qualification and deployment methods, as it should be
+        # merged into the same execution report?
+
+        if kind == MethodKind.TrainingOptimization:
+            return self.optimization_report_uuid_get()
+        elif kind == MethodKind.MeasurementQualification:
+            return self.execution_report_uuid_get()
+        elif kind == MethodKind.Deployment:
+            return self.execution_report_uuid_get()
+        elif kind == MethodKind.Analysis:
+            return self.analysis_report_uuid_get()
 
     # -------------------------- Check for IDs
 

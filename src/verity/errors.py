@@ -28,3 +28,10 @@ class DuplicateSlugError(Exception):
 
         self.path = path
         self.slug = slug
+
+
+class UnidentifiedMethodError(Exception):
+    def __init__(self, path: Path):
+        super().__init__(f"Method in {path} can't be identified")
+
+        self.path = path
