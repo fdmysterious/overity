@@ -37,6 +37,11 @@ class UnidentifiedMethodError(Exception):
         self.path = path
 
 
+class UnknownMethodError(Exception):
+    def __init__(self):
+        super().__init__("Can't find called method file path")
+
+
 class UninitAPIError(Exception):
     def __init__(self):
         super().__init__("Please initialize API with verity.api.init() before using")
