@@ -35,3 +35,8 @@ class UnidentifiedMethodError(Exception):
         super().__init__(f"Method in {path} can't be identified")
 
         self.path = path
+
+
+class UninitAPIError(Exception):
+    def __init__(self):
+        super().__init__("Please initialize API with verity.api.init() before using")

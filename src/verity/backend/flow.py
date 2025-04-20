@@ -8,6 +8,7 @@ VERITY Method flow management
 
 from __future__ import annotations
 
+from argparse import ArgumentParser, Namespace
 import atexit
 import logging
 from dataclasses import dataclass
@@ -29,6 +30,10 @@ from verity.model.traceability import (
 )
 
 from verity.exchange import report_json
+from verity.exchange.method_common import file_py, file_ipynb
+from verity.errors import UnidentifiedMethod, UninitAPIError
+
+from contextlib import contextmanager
 
 
 log = logging.getLogger("backend.flow")
@@ -41,12 +46,15 @@ class FlowCtx:
     storage: LocalStorage
     report: MethodReport
 
+    method_path: Path  # Path to current method
     method_slug: str
     method_kind: MethodKind
 
     method_key: ArtifactKey  # Helps identify the current method key for traceability
     report_key: ArtifactKey
     run_key: ArtifactKey
+
+    args: Namespace
 
     @classmethod
     def default(cls):
@@ -55,11 +63,13 @@ class FlowCtx:
             init_ok=False,
             storage=None,
             report=None,
+            method_path=None,
             method_slug=None,
             method_kind=None,
             method_key=None,
             report_key=None,
             run_key=None,
+            args=None,
         )
 
 
@@ -78,6 +88,16 @@ class LogArrayHandler(logging.Handler):
         )
 
 
+def _api_guard(fkt):
+    def call(ctx, *args, **kwargs):
+        if not ctx.init_ok:
+            raise UninitAPIError()
+        else:
+            return fkt(ctx, *args, **kwargs)
+
+    return call
+
+
 def init(ctx: FlowCtx, method_path: Path):
     log.info(f"Initialize API for method {method_path}")
     date_started = dt.now()
@@ -90,8 +110,12 @@ def init(ctx: FlowCtx, method_path: Path):
     ctx.storage = LocalStorage(ctx.pdir)
 
     # Identify method slug and kind
+    ctx.method_path = method_path
     ctx.method_slug = ctx.storage.identify_method_slug(method_path)
     ctx.method_kind = ctx.storage.identify_method_kind(method_path)
+
+    # Read method information
+    ctx.method_info = method_info_get(ctx)  # Read method information from file
 
     log.info(f"Method identification: {ctx.method_slug} ({ctx.method_kind.value})")
 
@@ -154,3 +178,37 @@ def exit_handler(ctx: FlowCtx):
     log.info(f"Save output report to {output_path}")
 
     report_json.to_file(ctx.report, output_path)
+
+
+def method_info_get(ctx):
+    if ctx.method_path.suffix == ".py":
+        return file_py.from_file(ctx.method_path, kind=ctx.method_kind)
+    elif ctx.method_path.suffix == ".ipynb":
+        return file_ipynb.from_file(ctx.method_path, kind=ctx.method_kind)
+    else:
+        raise UnidentifiedMethod(ctx.method_kind)
+
+
+@_api_guard
+@contextmanager
+def describe_arguments(ctx):
+    parser = ArgumentParser(
+        description=f"Arguments for method {ctx.method_info.display_name}"
+    )
+
+    yield parser
+
+    # Parse arguments
+    log.info("Parse arguments")
+    ctx.args = parser.parse_args()
+
+    # Save context information
+    ctx.report.context = vars(ctx.args)
+
+
+@_api_guard
+def argument(ctx, name: str):
+    if hasattr(ctx.args, name):
+        return getattr(ctx.args, name)
+    else:
+        raise

@@ -9,6 +9,7 @@ VERITY API for method writing
 import logging
 import inspect
 from pathlib import Path
+from contextlib import contextmanager
 
 from verity.backend import flow
 
@@ -27,3 +28,13 @@ def init():
 
     # Call flow init.
     flow.init(_CTX, caller_fpath)
+
+
+@contextmanager
+def describe_arguments():
+    with flow.describe_arguments(_CTX) as vargs:
+        yield vargs
+
+
+def argument(name: str):
+    return flow.argument(_CTX, name)
