@@ -8,7 +8,7 @@ VERITY model for reports
 
 from __future__ import annotations
 
-
+from datetime import datetime as dt
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -33,3 +33,28 @@ class MethodReport:
     traceability_graph: ArtifactGraph
     logs: list[MethodReportLogItem]
     outputs: any | None = None
+
+    @classmethod
+    def default(cls, uuid: str, date_started: dt | None = None) -> MethodReport:
+        date_started = date_started or dt.now()
+
+        return cls(
+            uuid=uuid,
+            date_started=date_started,
+            date_ended=None,
+            environment={},
+            context={},
+            traceability_graph=ArtifactGraph.default(),
+            logs=[],
+            outputs=None,
+        )
+
+    def log_add(self, tstamp: dt, severity: str, source: str, message: str):
+        self.logs.append(
+            MethodReportLogItem(
+                timestamp=tstamp,
+                severity=severity,
+                source=source,
+                message=message,
+            )
+        )

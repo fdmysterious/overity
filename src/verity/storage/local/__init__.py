@@ -16,7 +16,7 @@ from verity.exchange import execution_target_toml, program_toml
 from verity.storage.base import StorageBackend
 from verity.exchange.method_common import file_ipynb, file_py
 
-from verity.errors import DuplicateSlugError
+from verity.errors import DuplicateSlugError, UnidentifiedMethodError
 
 log = logging.getLogger("Local storage")
 
@@ -104,22 +104,34 @@ class LocalStorage(StorageBackend):
     #    return self.experiments_folder / slug / "info.toml"
 
     def _experiment_run_report_path(self, run_uuid: str):
-        return self.experiment_runs_folder / f"{run_uuid}.zip"
+        return self.experiment_runs_folder / f"{run_uuid}.json"
 
     def _optimization_report_path(self, run_uuid: str):
-        return self.optimization_reports_folder / f"{run_uuid}.zip"
+        return self.optimization_reports_folder / f"{run_uuid}.json"
 
     def _execution_report_path(self, run_uuid: str):
-        return self.execution_reports_folder / f"{run_uuid}.zip"
+        return self.execution_reports_folder / f"{run_uuid}.json"
 
     def _analysis_report_path(self, run_uuid: str):
-        return self.analysis_reports_folder / f"{run_uuid}.zip"
+        return self.analysis_reports_folder / f"{run_uuid}.json"
 
     def _model_path(self, slug: str):
-        return self.models_folder / f"{slug}.zip"
+        return self.models_folder / f"{slug}.json"
 
     def _dataset_path(self, slug: str):
-        return self.models_folder / f"{slug}.zip"
+        return self.models_folder / f"{slug}.json"
+
+    def method_run_report_path(self, run_uuid: str, method_kind: MethodKind):
+        # FIXME: How to process Deployment/Measurement qualification?
+
+        if method_kind == MethodKind.TrainingOptimization:
+            return self._optimization_report_path(run_uuid)
+        elif method_kind == MethodKind.MeasurementQualification:
+            return self._execution_report_path(run_uuid)
+        elif method_kind == MethodKind.Deployment:
+            return self._execution_report_path(run_uuid)
+        elif method_kind == MethodKind.Analysis:
+            return self._analysis_report_path(run_uuid)
 
     # -------------------------- Catalyst
 
@@ -210,6 +222,23 @@ class LocalStorage(StorageBackend):
     def experiments(self):
         """Get list of experiments definitions registered in program"""
         raise NotImplementedError
+
+    def identify_method_kind(self, pp: Path):
+        """Identify the method kind from a file, given its absolute path"""
+
+        if pp.is_relative_to(self.training_optimization_folder):
+            return MethodKind.TrainingOptimization
+        elif pp.is_relative_to(self.measurement_qualification_folder):
+            return MethodKind.MeasurementQualification
+        elif pp.is_relative_to(self.deployment_folder):
+            return MethodKind.Deployment
+        elif pp.is_relative_to(self.analysis_folder):
+            return MethodKind.Analysis
+        else:
+            raise UnidentifiedMethodError(pp)
+
+    def identify_method_slug(self, pp: Path):
+        return pp.stem
 
     # -------------------------- Shelf
 

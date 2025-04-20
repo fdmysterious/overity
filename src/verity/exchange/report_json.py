@@ -52,7 +52,7 @@ def to_file(report: MethodReport, path: Path):
     output_obj = {
         "uuid": report.uuid,
         "date_started": report.date_started.isoformat(),
-        "date_ended": report.date_started.isoformat(),
+        "date_ended": report.date_ended.isoformat(),
         "environment": report.environment,
         "context": report.context,
         "traceability_graph": _encode_traceability_graph(report.traceability_graph),
