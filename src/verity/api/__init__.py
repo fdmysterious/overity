@@ -7,14 +7,36 @@ VERITY API for method writing
 """
 
 import logging
-import inspect
 from pathlib import Path
 from contextlib import contextmanager
 
 from verity.backend import flow
+from verity.errors import UnknownMethodError
+
 
 # Initialize global flow object
 _CTX = flow.FlowCtx.default()
+
+
+def _get_method_path():
+    # Strategy 1: if method is  python file
+    try:
+        import __main__
+
+        return Path(__main__.__file__).resolve()
+    except AttributeError:  # No __file__ -> Not from python file!
+        pass
+
+    # Strategy 2: called from VScode
+    try:
+        import __main__
+
+        return Path(__main__.__vsc_ipynb_file__).resolve()
+    except AttributeError:  # No __vsc_ipynb_file__ -> Not from VSCode!
+        pass
+
+    # No strategy worked, can't identify method
+    raise UnknownMethodError()
 
 
 def init():
@@ -22,9 +44,10 @@ def init():
     # TODO: Improve logging format, and add environment variable for debug
     logging.basicConfig(level=logging.INFO)
 
-    # Get caller method file name
-    caller_frame = inspect.stack()[1]
-    caller_fpath = Path(caller_frame.filename)
+    caller_fpath = (
+        _get_method_path()
+    )  # Call the tricky thing to get the current method file path
+    print(f"CALLER_FPATH={caller_fpath}")
 
     # Call flow init.
     flow.init(_CTX, caller_fpath)

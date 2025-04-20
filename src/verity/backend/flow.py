@@ -31,7 +31,7 @@ from verity.model.traceability import (
 
 from verity.exchange import report_json
 from verity.exchange.method_common import file_py, file_ipynb
-from verity.errors import UnidentifiedMethod, UninitAPIError
+from verity.errors import UnidentifiedMethodError, UninitAPIError
 
 from contextlib import contextmanager
 
@@ -186,7 +186,7 @@ def method_info_get(ctx):
     elif ctx.method_path.suffix == ".ipynb":
         return file_ipynb.from_file(ctx.method_path, kind=ctx.method_kind)
     else:
-        raise UnidentifiedMethod(ctx.method_kind)
+        raise UnidentifiedMethodError(ctx.method_kind)
 
 
 @_api_guard
