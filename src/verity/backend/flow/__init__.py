@@ -8,10 +8,8 @@ VERITY Method flow management
 
 from __future__ import annotations
 
-from argparse import ArgumentParser, Namespace
 import atexit
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 
 from datetime import datetime as dt
@@ -33,44 +31,13 @@ from verity.exchange import report_json
 from verity.exchange.method_common import file_py, file_ipynb
 from verity.errors import UnidentifiedMethodError, UninitAPIError
 
+from verity.backend.flow.ctx import FlowCtx
+from verity.backend.flow.arguments import ArgumentParser
+
 from contextlib import contextmanager
 
 
 log = logging.getLogger("backend.flow")
-
-
-@dataclass
-class FlowCtx:
-    pdir: Path  # Path to current programme
-    init_ok: bool  # Is Flow init OK?
-    storage: LocalStorage
-    report: MethodReport
-
-    method_path: Path  # Path to current method
-    method_slug: str
-    method_kind: MethodKind
-
-    method_key: ArtifactKey  # Helps identify the current method key for traceability
-    report_key: ArtifactKey
-    run_key: ArtifactKey
-
-    args: Namespace
-
-    @classmethod
-    def default(cls):
-        return cls(
-            pdir=None,
-            init_ok=False,
-            storage=None,
-            report=None,
-            method_path=None,
-            method_slug=None,
-            method_kind=None,
-            method_key=None,
-            report_key=None,
-            run_key=None,
-            args=None,
-        )
 
 
 class LogArrayHandler(logging.Handler):
@@ -192,23 +159,20 @@ def method_info_get(ctx):
 @_api_guard
 @contextmanager
 def describe_arguments(ctx):
-    parser = ArgumentParser(
-        description=f"Arguments for method {ctx.method_info.display_name}"
-    )
+    parser = ArgumentParser(ctx)
 
     yield parser
 
     # Parse arguments
     log.info("Parse arguments")
-    ctx.args = parser.parse_args()
+    parser.parse_args()
+
+    ctx.args = parser.context()
 
     # Save context information
-    ctx.report.context = vars(ctx.args)
+    ctx.report.context = ctx.args
 
 
 @_api_guard
 def argument(ctx, name: str):
-    if hasattr(ctx.args, name):
-        return getattr(ctx.args, name)
-    else:
-        raise
+    return ctx.args[name]
