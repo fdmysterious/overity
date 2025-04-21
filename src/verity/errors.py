@@ -45,3 +45,15 @@ class UnknownMethodError(Exception):
 class UninitAPIError(Exception):
     def __init__(self):
         super().__init__("Please initialize API with verity.api.init() before using")
+
+
+class ArgumentNotFoundError(Exception):
+    def __init__(self, name: str):
+        super().__init__(f"Argument '{name}' not providen")
+
+        self.name = name
+
+
+class DuplicateArgumentNameError(Exception):
+    def __init__(self, name: str):
+        super().__init__(f"Argument '{name}' is already defined")

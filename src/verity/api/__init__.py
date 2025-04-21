@@ -13,9 +13,11 @@ from contextlib import contextmanager
 from verity.backend import flow
 from verity.errors import UnknownMethodError
 
+from verity.backend.flow.ctx import FlowCtx
+
 
 # Initialize global flow object
-_CTX = flow.FlowCtx.default()
+_CTX = FlowCtx.default()
 
 
 def _get_method_path():
