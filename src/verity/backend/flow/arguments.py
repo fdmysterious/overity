@@ -8,19 +8,16 @@ Manage arguments for methods
 
 from __future__ import annotations
 
-import os
-
 from verity.model.arguments import (
-    Argument,
-    Option,
-    Flag,
     ArgumentSchema,
     OptionSchema,
     FlagSchema,
 )
-from verity.backend.flow.ctx import FlowCtx
+from verity.backend.flow.ctx import FlowCtx, RunMode
 
-from verity.errors import ArgumentNotFoundError, DuplicateArgumentNameError
+from verity.errors import DuplicateArgumentNameError
+
+from argparse import ArgumentParser as CmdArgs
 
 
 class ArgumentParser:
@@ -29,9 +26,7 @@ class ArgumentParser:
 
         self.schema = {}
 
-        self.parsed_arguments = {}
-        self.parsed_options = {}
-        self.parsed_flags = {}
+        self.parsed_args = {}  # Parsed arguments values are stored here
 
     def add_argument(self, name: str, help: str):
         if name in self.schema:
@@ -51,40 +46,56 @@ class ArgumentParser:
     def _escape_name(self, x: str):
         return x.upper().replace("-", "_").replace(".", "_")
 
-    def parse_args(self):
+    def _parse_args_standalone(self):
+        """Parse arguments in standalone running mode using ArgumentParser from argparse"""
+
+        parser = CmdArgs()
+
+        # Build argument aprser
         for item in self.schema.values():
             if isinstance(item, ArgumentSchema):
-                env_var = f"VARG_{self._escape_name(item.name)}"
-                env_var_value = os.getenv(env_var)
-
-                if env_var_value is None:  # Arguments are mandatory
-                    raise ArgumentNotFoundError(item.name)
-
-                self.parsed_arguments[item.name] = Argument(
-                    name=item.name, value=env_var_value
-                )
-
+                parser.add_argument(item.name, help=item.help)
             elif isinstance(item, OptionSchema):
-                env_var = f"VOPT_{self._escape_name(item.name)}"
-                env_var_value = os.getenv(env_var) or item.default
-                self.parsed_options[item.name] = Option(
-                    name=item.name, value=env_var_value
+                parser.add_argument(
+                    f"--{item.name}", default=item.default, help=item.help
+                )
+            elif isinstance(item, FlagSchema):
+                parser.add_argument(
+                    f"--{item.name}", action="store_true", help=item.help
                 )
 
-            elif isinstance(item, FlagSchema):
-                env_var = f"VFLAG_{self._escape_name(item.name)}"
-                env_var_value = os.getenv(env_var) or "0"
-                self.parsed_flags[item.name] = Flag(
-                    name=item.name, value=env_var_value == "1"
+        # Parse arguments
+        args = parser.parse_args()
+
+        # Fill context information
+        context = {v.name: getattr(args, v.name) for v in self.schema.values()}
+
+        self.parsed_vars = context
+
+    def _parse_args_interactive(self):
+        """Parse arguments in interactive mode"""
+
+        self.parsed_vars = {}
+
+        for item in self.schema.values():
+            if isinstance(item, ArgumentSchema):
+                self.parsed_vars[item.name] = input(
+                    f"Please provide value for argument: {item.name}"
                 )
+            elif isinstance(item, OptionSchema):
+                self.parsed_vars[item.name] = item.default
+            elif isinstance(item, FlagSchema):
+                # By default all flags disabled
+                # TODO: Process differently?
+                self.parsed_vars[item.Name] = False
+
+    def parse_args(self):
+        if self.ctx.run_mode == RunMode.Standalone:
+            self._parse_args_standalone()
+        elif self.ctx.run_mode == RunMode.Interactive:
+            self._parse_args_interactive()
 
     def context(self):
         """Return the list of parsed variables as a dict"""
 
-        ctx_args = {x.name: x.value for x in self.parsed_arguments.values()}
-
-        ctx_opts = {x.name: x.value for x in self.parsed_options.values()}
-
-        ctx_flags = {x.name: x.value for x in self.parsed_flags.values()}
-
-        return {**ctx_args, **ctx_opts, **ctx_flags}
+        return self.parsed_vars
