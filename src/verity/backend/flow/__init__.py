@@ -31,7 +31,7 @@ from verity.exchange import report_json
 from verity.exchange.method_common import file_py, file_ipynb
 from verity.errors import UnidentifiedMethodError, UninitAPIError
 
-from verity.backend.flow.ctx import FlowCtx
+from verity.backend.flow.ctx import FlowCtx, RunMode
 from verity.backend.flow.arguments import ArgumentParser
 
 from contextlib import contextmanager
@@ -65,9 +65,13 @@ def _api_guard(fkt):
     return call
 
 
-def init(ctx: FlowCtx, method_path: Path):
+def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     log.info(f"Initialize API for method {method_path}")
     date_started = dt.now()
+
+    # Set run mode
+    ctx.run_mode = run_mode
+    log.info(f"Running in mode: {run_mode}")
 
     # Get current programme
     ctx.pdir = program.find_current(start_path=method_path.parent)
