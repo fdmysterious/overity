@@ -11,16 +11,25 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from verity.model.general_info.Method import MethodKind
+from verity.model.general_info.method import MethodKind
 from verity.storage.local import LocalStorage
 from verity.model.report import MethodReport
 from verity.model.traceability import ArtifactKey
+
+from enum import Enum
+
+
+class RunMode(Enum):
+    Standalone = "standalone"
+    Interactive = "interactive"
 
 
 @dataclass
 class FlowCtx:
     pdir: Path  # Path to current programme
     init_ok: bool  # Is Flow init OK?
+    run_mode: RunMode  # Current running mode
+
     storage: LocalStorage
     report: MethodReport
 
@@ -39,6 +48,7 @@ class FlowCtx:
         return cls(
             pdir=None,
             init_ok=False,
+            run_mode=None,
             storage=None,
             report=None,
             method_path=None,
