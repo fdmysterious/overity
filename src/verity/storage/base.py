@@ -11,6 +11,8 @@ from abc import ABC, abstractmethod
 from typing import Callable
 
 from verity.model.general_info.method import MethodKind
+from verity.model.ml_model.metadata import MLModelMetadata
+from verity.model.ml_model.package import MLModelPackage
 
 
 class StorageBackend(ABC):
@@ -74,6 +76,14 @@ class StorageBackend(ABC):
     @abstractmethod
     def datasets(self):
         """Get list of available datasets in program"""
+
+    @abstractmethod
+    def model_info_get(self, slug: str) -> MLModelMetadata:
+        """Get info for a given model slug"""
+
+    @abstractmethod
+    def model_load(self, slug: str) -> MLModelPackage:
+        """Load a model package"""
 
     # -------------------------- Generate IDs
 

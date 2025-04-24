@@ -180,3 +180,8 @@ def describe_arguments(ctx):
 @_api_guard
 def argument(ctx, name: str):
     return ctx.args[name]
+
+
+@_api_guard
+def model_use(ctx, slug: str):
+    log.info(f"Search for model: {slug}")
