@@ -11,12 +11,14 @@ import traceback
 from pathlib import Path
 
 from verity.model.general_info.method import MethodKind, MethodInfo
+from verity.model.ml_model.metadata import MLModelMetadata
 
 from verity.exchange import execution_target_toml, program_toml
 from verity.storage.base import StorageBackend
 from verity.exchange.method_common import file_ipynb, file_py
 
-from verity.errors import DuplicateSlugError, UnidentifiedMethodError
+from verity.errors import DuplicateSlugError, UnidentifiedMethodError, ModelNotFound
+
 
 log = logging.getLogger("Local storage")
 
@@ -116,7 +118,7 @@ class LocalStorage(StorageBackend):
         return self.analysis_reports_folder / f"{run_uuid}.json"
 
     def _model_path(self, slug: str):
-        return self.models_folder / f"{slug}.json"
+        return self.models_folder / f"{slug}.tar.gz"
 
     def _dataset_path(self, slug: str):
         return self.models_folder / f"{slug}.json"
@@ -270,6 +272,15 @@ class LocalStorage(StorageBackend):
     def datasets(self):
         """Get list of available datasets in program"""
         raise NotImplementedError
+
+    def model_info_get(self, slug: str) -> MLModelMetadata:
+        # Try to find model package file
+        fpath = self._model_path(slug)
+
+        if not fpath.is_file():
+            raise ModelNotFound(slug)
+
+        # Load json info from package
 
     # -------------------------- Check for IDs
 

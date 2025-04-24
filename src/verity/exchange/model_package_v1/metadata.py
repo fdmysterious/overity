@@ -5,9 +5,10 @@
 - December 2024
 """
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
-from typing import Dict
 
 from verity.model.ml_model.metadata import (
     MLModelAuthor,
@@ -20,7 +21,7 @@ from verity.model.ml_model.metadata import (
 ####################################################
 
 
-def _metadata_decode_model_author(data: Dict[str, any]):
+def _metadata_decode_model_author(data: dict[str, any]):
     name = data["name"]
     email = data["email"]
     contribution = data.get("contribution")
@@ -28,14 +29,14 @@ def _metadata_decode_model_author(data: Dict[str, any]):
     return MLModelAuthor(name=name, email=email, contribution=contribution)
 
 
-def _metadata_decode_model_maintainer(data: Dict[str, any]):
+def _metadata_decode_model_maintainer(data: dict[str, any]):
     name = data["name"]
     email = data["email"]
 
     return MLModelMaintainer(name=name, email=email)
 
 
-def _metadata_decode(data: Dict[str, any]):
+def _metadata_decode(data: dict[str, any]):
     name = data["name"]
     version = data["version"]
     authors = [_metadata_decode_model_author(x) for x in data["authors"]]
@@ -57,6 +58,13 @@ def _metadata_decode(data: Dict[str, any]):
     )
 
 
+def from_dict(data: dict[str, str]):
+    # Schema validation
+    # TODO
+
+    return _metadata_decode(data)
+
+
 def from_file(json_path: Path):
     json_path = Path(json_path)
 
@@ -64,11 +72,7 @@ def from_file(json_path: Path):
     with open(json_path) as fhandle:
         data = json.load(fhandle)
 
-    # Validate file schema
-    # TODO
-
-    # Process elements
-    return _metadata_decode(data)
+    return from_dict(data)
 
 
 ####################################################

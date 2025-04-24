@@ -5,12 +5,18 @@
 - December 2024
 """
 
+import io
+import json
 import tarfile
 import tempfile
 from pathlib import Path
 
-from verity.exchange.model_package_v1 import metadata
+from verity.exchange.model_package_v1 import metadata as ml_metadata
+
+from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
+
+from verity.errors import MalformedModelPackage
 
 
 def package_archive_create(model_data: MLModelPackage, output_path: Path):
@@ -19,7 +25,7 @@ def package_archive_create(model_data: MLModelPackage, output_path: Path):
     with tempfile.NamedTemporaryFile(delete_on_close=False) as fhandle:
         # Encode metadata to JSON temporary file
         fhandle.close()  # File will be reopened by exchange encoding
-        metadata.to_file(model_data.metadata, fhandle.name)
+        ml_metadata.to_file(model_data.metadata, fhandle.name)
 
         # Create output archive
         with tarfile.open(output_path, "w:gz") as archive:
@@ -32,3 +38,59 @@ def package_archive_create(model_data: MLModelPackage, output_path: Path):
                 archive.add(model_data.example_implementation_path, "inference-example")
 
     # -> fhandle file is removed automatically when exiting the with... clause
+
+
+def _process_metadata(archive_path: Path, tf: tarfile.TarFile):
+    """Utility function to load metadata from archive file"""
+
+    info_json = tf.getmember("model-metadata.json")
+
+    if info_json is None:
+        raise MalformedModelPackage(archive_path, "No model-metadata.json file")
+
+    with tf.extractfile(info_json) as fhandle:
+        data = json.load(fhandle)
+
+    return ml_metadata.from_dict(data)
+
+
+def _process_model_file(
+    archive_path: Path,
+    tf: tarfile.TarFile,
+    metadata: MLModelMetadata,
+    ftarget: io.IOBase,
+):
+    model_file = tf.getmember(metadata.model_file)
+
+    if model_file is None:
+        raise MalformedModelPackage(
+            archive_path,
+            f"Indicated model_file, '{metadata.model_file}', is not found in archive",
+        )
+
+    with tf.extractfile(model_file) as fmod:
+        ftarget.write(fmod.read())
+        ftarget.flush()
+
+
+def metadata_load(archive_path: Path) -> MLModelMetadata:
+    """Load only metadata from archive path"""
+
+    archive_path = Path(archive_path)
+
+    with tarfile.open(archive_path, "r:gz") as archive:
+        meta = _process_metadata(archive_path, archive)
+
+    return meta
+
+
+def model_load(archive_path: Path, ftarget: io.IOBase) -> MLModelMetadata:
+    """Load model metadata from archive, and load model implementation in ftarget"""
+
+    archive_path = Path(archive_path)
+
+    with tarfile.open(archive_path, "r:gz") as archive:
+        meta = _process_metadata(archive_path, archive)
+        _process_model_file(archive_path, archive, meta, ftarget)
+
+    return meta

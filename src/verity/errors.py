@@ -22,6 +22,11 @@ class ProgramNotFound(Exception):
         )
 
 
+class ModelNotFound(Exception):
+    def __init__(self, slug: str):
+        super().__init__(f"Model '{slug}' not found")
+
+
 class DuplicateSlugError(Exception):
     def __init__(self, path: Path, slug: str):
         super().__init__(f"Duplicate slug found in {path!s}: {slug!s}")
@@ -57,3 +62,11 @@ class ArgumentNotFoundError(Exception):
 class DuplicateArgumentNameError(Exception):
     def __init__(self, name: str):
         super().__init__(f"Argument '{name}' is already defined")
+
+
+class MalformedModelPackage(Exception):
+    def __init__(self, archive_path: Path, what: str):
+        super().__init__(f"Malformed archive package in {archive_path}: {what}")
+
+        self.archive_path = archive_path
+        self.what = what
