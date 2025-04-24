@@ -287,15 +287,14 @@ class LocalStorage(StorageBackend):
 
         return pkginfo
 
-    def model_load(self, slug: str, target_folder: Path) -> MLModelMetadata:
+    def model_use(self, slug: str, target_file: io.IOBase) -> MLModelMetadata:
         fpath = self._model_path(slug)
 
         if not fpath.is_file():
             raise ModelNotFound(slug)
 
-        pkginfo = ml_package.model_load(fpath, target_folder)
-
-        return pkginfo
+        pkginfo = ml_package.model_load(fpath, target_file)
+        
 
     # -------------------------- Check for IDs
 

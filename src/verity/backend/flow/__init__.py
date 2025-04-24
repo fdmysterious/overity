@@ -10,6 +10,9 @@ from __future__ import annotations
 
 import atexit
 import logging
+import tempfile
+import sys
+
 from pathlib import Path
 
 from datetime import datetime as dt
@@ -53,6 +56,23 @@ class LogArrayHandler(logging.Handler):
             source=f"{record.filename}:{record.lineno}",
             message=record.getMessage(),
         )
+
+
+class LoggerWriter:
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+
+    def write(self, message):
+        message = message.strip()
+
+        # Remove any trailing newlines to avoid empty log entries
+        if message not in ["", "^"]:
+            self.logger.log(self.level, message.strip())
+
+    def flush(self):
+        # Flush method is required but can be a no-op
+        pass
 
 
 def _api_guard(fkt):
@@ -131,6 +151,13 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     root_log = logging.getLogger("")
     root_log.addHandler(LogArrayHandler(report=ctx.report))
 
+    stdout_log = logging.getLogger("stdout")
+    stderr_log = logging.getLogger("stderr")
+
+    # Redirect stdout and stderr...
+    sys.stdout = LoggerWriter(stdout_log, logging.INFO)
+    sys.stderr = LoggerWriter(stderr_log, logging.ERROR)
+
     # Add exit handler to save report file
     atexit.register(lambda: exit_handler(ctx))
 
@@ -185,3 +212,26 @@ def argument(ctx, name: str):
 @_api_guard
 def model_use(ctx, slug: str):
     log.info(f"Search for model: {slug}")
+
+    tmpdir = tempfile.TemporaryDirectory()
+    tmpdir_path = Path(tmpdir.name).resolve()
+
+    pkginfo = ctx.storage.model_load(slug, tmpdir_path)
+
+    # Add traceability TODO
+    # -> Create artifact key for model
+    model_key = ArtifactKey(
+        kind=ArtifactKind.Model,
+        id=slug,
+    )
+
+    # -> Model use for optimization run
+    ctx.report.traceability_graph.add(
+        ArtifactLink(
+            a=ctx.report.run_key,
+            b=model_key,
+            kind=ArtifactLinkKind.ModelUse,
+        )
+    )
+
+    return tmpdir, tmpdir_path / pkginfo.model_file, pkginfo

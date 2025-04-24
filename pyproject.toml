@@ -83,7 +83,12 @@ exclude_lines = [
 
 [tool.hatch.envs.default]
 
-dependencies = []
+python = "3.12"
+
+dependencies = [
+	"tensorflow",
+	"keras"
+]
 
 
 ## ---------------------------- Type-checking environment

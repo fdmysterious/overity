@@ -60,3 +60,7 @@ def describe_arguments():
 
 def argument(name: str):
     return flow.argument(_CTX, name)
+
+
+def model_use(slug: str):
+    return flow.model_use(_CTX, slug)
