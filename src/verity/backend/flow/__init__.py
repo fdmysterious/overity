@@ -234,4 +234,6 @@ def model_use(ctx, slug: str):
         )
     )
 
-    return tmpdir, tmpdir_path / pkginfo.model_file, pkginfo
+    ctx.tmpdirs.append(tmpdir)
+
+    return tmpdir_path / pkginfo.model_file, pkginfo

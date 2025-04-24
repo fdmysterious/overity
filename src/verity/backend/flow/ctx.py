@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from verity.model.general_info.method import MethodKind
 from verity.storage.local import LocalStorage
@@ -43,6 +44,9 @@ class FlowCtx:
 
     args: dict[str, str]
 
+    # Keep TemporaryDirectory objects alive to avoid delete before exiting app
+    tmpdirs: list[TemporaryDirectory]
+
     @classmethod
     def default(cls):
         return cls(
@@ -58,4 +62,5 @@ class FlowCtx:
             report_key=None,
             run_key=None,
             args=None,
+            tmpdirs=[],
         )
