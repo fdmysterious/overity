@@ -5,7 +5,6 @@
 - December 2024
 """
 
-import io
 import json
 import tarfile
 import tempfile
@@ -58,8 +57,9 @@ def _process_model_file(
     archive_path: Path,
     tf: tarfile.TarFile,
     metadata: MLModelMetadata,
-    ftarget: io.IOBase,
+    target_folder: Path,
 ):
+    target_folder = Path(target_folder)
     model_file = tf.getmember(metadata.model_file)
 
     if model_file is None:
@@ -68,7 +68,9 @@ def _process_model_file(
             f"Indicated model_file, '{metadata.model_file}', is not found in archive",
         )
 
-    with tf.extractfile(model_file) as fmod:
+    with open(target_folder / metadata.model_file, "wb") as ftarget, tf.extractfile(
+        model_file
+    ) as fmod:
         ftarget.write(fmod.read())
         ftarget.flush()
 
@@ -84,13 +86,13 @@ def metadata_load(archive_path: Path) -> MLModelMetadata:
     return meta
 
 
-def model_load(archive_path: Path, ftarget: io.IOBase) -> MLModelMetadata:
+def model_load(archive_path: Path, target_folder: Path) -> MLModelMetadata:
     """Load model metadata from archive, and load model implementation in ftarget"""
 
     archive_path = Path(archive_path)
 
     with tarfile.open(archive_path, "r:gz") as archive:
         meta = _process_metadata(archive_path, archive)
-        _process_model_file(archive_path, archive, meta, ftarget)
+        _process_model_file(archive_path, archive, meta, target_folder)
 
     return meta
