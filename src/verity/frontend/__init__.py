@@ -9,12 +9,16 @@ import sys
 
 from verity.frontend import program
 from verity.frontend import method
+from verity.frontend import model
 
 
-CLI_GROUPS = {program, method}
+CLI_GROUPS = {program, method, model}
 
 
 def main():
+    # TODO: Setup logger
+    # logging.basicConfig(level=logging.DEBUG)
+
     # Imports and initial setup
     import argparse
 

@@ -18,7 +18,10 @@ from verity.backend import program as b_program
 from verity.errors import ProgramNotFound
 
 from verity.frontend import types
+from verity.frontend.utils import table as f_table
+
 from verity.model.general_info.method import MethodKind
+
 
 log = logging.getLogger("frontend.method.list_cmd")
 
@@ -47,20 +50,21 @@ def run(args: Namespace):
             print("")
             print(f"Found the following methods in {pdir}:")
             print("")
-            for mtd in methods:
-                print(
-                    f" - {mtd.slug}: {mtd.display_name!r} (in {mtd.path.relative_to(pdir)})"
-                )
 
-            if not methods:
-                print("- No method found")
+            headers = ("Slug", "Display name", "Path")
+            rows = (
+                (mtd.slug, mtd.display_name, mtd.path.relative_to(pdir))
+                for mtd in methods
+            )
+
+            print(f_table.table_format(headers, rows))
 
             if errors:
                 print("")
                 print("While processing, the following errors has been found:")
                 print("")
                 for fpath, err in errors:
-                    print(f"- in {fpath!s}: {err!s}")
+                    print(f"- in {fpath.relative_to(pdir)!s}: {err!s}")
 
         else:
             log.error(f"Unimplemented kind list: {args.kind}")

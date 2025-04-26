@@ -19,11 +19,11 @@ def setup_parser(parser: ArgumentParser):
 
     for cmd in CLI_SUBCOMMANDS:
         subp = cmd.setup_parser(subparsers)
-        subp.set_defaults(method_subcommand_clbk=cmd)
+        subp.set_defaults(model_subcommand_clbk=cmd)
 
     return subcommand
 
 
 def run(args: Namespace):
     if hasattr(args, "model_subcommand_clbk"):
-        args.method_subcommand_clbk.run(args)
+        args.model_subcommand_clbk.run(args)
