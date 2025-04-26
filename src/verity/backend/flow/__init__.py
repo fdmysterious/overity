@@ -16,12 +16,20 @@ import sys
 from pathlib import Path
 
 from datetime import datetime as dt
+from dataclasses import dataclass
 
 from verity.backend import program
 from verity.storage.local import LocalStorage
 
 from verity.model.general_info.method import MethodKind
 from verity.model.report import MethodReport
+
+from verity.model.ml_model.metadata import (
+    MLModelAuthor,
+    MLModelMaintainer,
+    MLModelMetadata,
+)
+from verity.model.ml_model.package import MLModelPackage
 
 from verity.model.traceability import (
     ArtifactKind,
@@ -73,6 +81,13 @@ class LoggerWriter:
     def flush(self):
         # Flush method is required but can be a no-op
         pass
+
+
+@dataclass
+class ModelPackageInfo:
+    model_metadata: MLModelMetadata
+    model_file_path: Path  # Path to store model file
+    inference_example_path: Path  # Optional folder path to store inference example
 
 
 def _api_guard(fkt):
@@ -237,3 +252,68 @@ def model_use(ctx, slug: str):
     ctx.tmpdirs.append(tmpdir)
 
     return tmpdir_path / pkginfo.model_file, pkginfo
+
+
+@_api_guard
+@contextmanager
+def model_package(
+    ctx: FlowCtx, slug: str, exchange_format: str, target: str = "agnostic"
+):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Initialize package metadata
+        meta = MLModelMetadata(
+            name=slug,
+            version="TODO",  # TODO: How to treat this?
+            authors=[
+                MLModelAuthor(name=a.name, email=a.email, contribution=a.contribution)
+                for a in ctx.method_info.authors
+            ],
+            # TODO: How to determine list of maintainers? Maybe store as program information?
+            maintainers=[
+                MLModelMaintainer(name=a.name, email=a.email)
+                for a in ctx.method_info.authors
+            ],
+            target=target,
+            exchange_format=exchange_format,
+            model_file=f"model.{exchange_format}",
+        )
+
+        # Initialize context information
+        pkginfo = ModelPackageInfo(
+            model_metadata=meta,
+            model_file_path=Path(tmpdir).resolve() / meta.model_file,
+            inference_example_path=Path(tmpdir).resolve() / "inference-example",
+        )
+
+        yield pkginfo
+
+        # -> Now the user should have stored files...
+        # TODO: Add check that model file is effectively stored here, or else raise some exception
+
+        # Create traceability information
+        model_key = ArtifactKey(
+            kind=ArtifactKind.Model,
+            id=slug,
+        )
+
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.run_key,
+                b=model_key,
+                kind=ArtifactLinkKind.ModelGeneratedBy,
+            )
+        )
+
+        # Now that package is created, we can create the archive
+        ctx.storage.model_store(
+            slug,
+            MLModelPackage(
+                metadata=meta,
+                model_file_path=pkginfo.model_file_path,
+                example_implementation_path=(
+                    pkginfo.inference_example_path
+                    if pkginfo.inference_example_path.exists()
+                    else None
+                ),
+            ),
+        )

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from verity.model.general_info.method import MethodKind, MethodInfo
 from verity.model.ml_model.metadata import MLModelMetadata
+from verity.model.ml_model.package import MLModelPackage
 
 from verity.exchange import execution_target_toml, program_toml
 from verity.storage.base import StorageBackend
@@ -296,6 +297,12 @@ class LocalStorage(StorageBackend):
         pkginfo = ml_package.model_load(fpath, target_folder)
 
         return pkginfo
+
+    def model_store(self, slug: str, pkg: MLModelPackage):
+        fpath = self._model_path(slug)  # Get path for target archive
+        ml_package.package_archive_create(pkg, fpath)
+
+        log.info(f"Stored model {slug} to {fpath}")
 
     # -------------------------- Check for IDs
 
