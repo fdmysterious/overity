@@ -85,11 +85,6 @@ exclude_lines = [
 
 python = "3.12"
 
-dependencies = [
-	"tensorflow",
-	"keras"
-]
-
 
 ## ---------------------------- Type-checking environment
 

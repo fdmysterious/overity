@@ -14,6 +14,8 @@ from verity.model.general_info.method import MethodKind
 from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
 
+from pathlib import Path
+
 
 class StorageBackend(ABC):
 
@@ -82,8 +84,12 @@ class StorageBackend(ABC):
         """Get info for a given model slug"""
 
     @abstractmethod
-    def model_load(self, slug: str) -> MLModelPackage:
+    def model_load(self, slug: str, target_folder: Path) -> MLModelMetadata:
         """Load a model package"""
+
+    @abstractmethod
+    def model_store(self, slug: str, package: MLModelPackage):
+        """Store a model"""
 
     # -------------------------- Generate IDs
 

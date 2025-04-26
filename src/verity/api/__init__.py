@@ -64,3 +64,9 @@ def argument(name: str):
 
 def model_use(slug: str):
     return flow.model_use(_CTX, slug)
+
+
+@contextmanager
+def model_package(slug: str, exchange_format: str, target: str = "anogstic"):
+    with flow.model_package(_CTX, slug, target) as vpkg:
+        yield vpkg
