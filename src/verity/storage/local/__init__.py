@@ -270,7 +270,22 @@ class LocalStorage(StorageBackend):
 
     def models(self):
         """Get list of available models in program"""
-        raise NotImplementedError
+
+        def process_file(x: Path):
+            try:
+                return (x, ml_package.metadata_load(x))
+            except Exception as exc:
+                return (x, exc)
+
+        processed = list(map(process_file, self.models_folder.glob("*.tar.gz")))
+
+        # Isolate found models and errors
+        found_models = list(
+            filter(lambda x: isinstance(x[1], MLModelMetadata), processed)
+        )
+        found_errors = list(filter(lambda x: isinstance(x[0], Exception), processed))
+
+        return found_models, found_errors
 
     def datasets(self):
         """Get list of available datasets in program"""
