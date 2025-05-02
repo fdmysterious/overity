@@ -36,6 +36,7 @@ dependencies = [
 	"toml==0.10.2",
 	"parsimonious==0.10.0",
 	"nbformat==5.10.4",
+	"Jinja2==3.1.6",
 ]
 
 

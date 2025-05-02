@@ -43,6 +43,7 @@ from verity.exchange.method_common import file_py, file_ipynb
 from verity.errors import UnidentifiedMethodError, UninitAPIError
 
 from verity.backend.flow.ctx import FlowCtx, RunMode
+from verity.backend.flow import environment as b_env
 from verity.backend.flow.arguments import ArgumentParser
 
 from contextlib import contextmanager
@@ -111,6 +112,9 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     # Get current programme
     ctx.pdir = program.find_current(start_path=method_path.parent)
     log.info(f"Programme directory: {ctx.pdir}")
+    ctx.pinfo = program.infos(ctx.pdir)
+    log.info(f"Programme slug: {ctx.pinfo.slug}")
+    log.info(f"Programme name: {ctx.pinfo.display_name}")
 
     # Init local storage
     ctx.storage = LocalStorage(ctx.pdir)
@@ -128,8 +132,15 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     # Initialize report and environment information
     ctx.report = MethodReport.default(
         uuid=ctx.storage.method_report_uuid_get(ctx.method_kind),
+        program=ctx.pinfo.slug,
+        method_info=ctx.method_info,
         date_started=date_started,
     )
+
+    ctx.report.environment = {
+        "installed_packages": b_env.installed_packages(),
+        **b_env.platform_info(),
+    }
 
     # Initialize run traceability information
     # TODO: For other types
@@ -298,8 +309,8 @@ def model_package(
 
         ctx.report.traceability_graph.add(
             ArtifactLink(
-                a=ctx.report.run_key,
-                b=model_key,
+                a=model_key,
+                b=ctx.report.run_key,
                 kind=ArtifactLinkKind.ModelGeneratedBy,
             )
         )

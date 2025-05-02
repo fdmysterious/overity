@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from verity.model.generla_info.program import ProgramInfo
 from verity.model.general_info.method import MethodKind
 from verity.storage.local import LocalStorage
 from verity.model.report import MethodReport
@@ -28,6 +29,7 @@ class RunMode(Enum):
 @dataclass
 class FlowCtx:
     pdir: Path  # Path to current programme
+    pinfo: ProgramInfo  # Current program info
     init_ok: bool  # Is Flow init OK?
     run_mode: RunMode  # Current running mode
 
@@ -51,6 +53,7 @@ class FlowCtx:
     def default(cls):
         return cls(
             pdir=None,
+            pinfo=None,
             init_ok=False,
             run_mode=None,
             storage=None,
