@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from verity.model.traceability import ArtifactGraph
+from verity.model.general_info.method import MethodInfo
 
 
 @dataclass
@@ -26,20 +27,30 @@ class MethodReportLogItem:
 @dataclass
 class MethodReport:
     uuid: str
+    program: str  # Name of programme
     date_started: datetime
     date_ended: datetime
     environment: dict[str, str]
     context: dict[str, str]
     traceability_graph: ArtifactGraph
+    method_info: MethodInfo
     logs: list[MethodReportLogItem]
     outputs: any | None = None
 
     @classmethod
-    def default(cls, uuid: str, date_started: dt | None = None) -> MethodReport:
+    def default(
+        cls,
+        uuid: str,
+        program: str,
+        method_info: MethodInfo,
+        date_started: dt | None = None,
+    ) -> MethodReport:
         date_started = date_started or dt.now()
 
         return cls(
             uuid=uuid,
+            program=program,
+            method_info=method_info,
             date_started=date_started,
             date_ended=None,
             environment={},
