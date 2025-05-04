@@ -49,6 +49,9 @@ class FlowCtx:
     # Keep TemporaryDirectory objects alive to avoid delete before exiting app
     tmpdirs: list[TemporaryDirectory]
 
+    # list of encountered exceptions
+    exceptions: list[BaseException]
+
     @classmethod
     def default(cls):
         return cls(
@@ -66,4 +69,5 @@ class FlowCtx:
             run_key=None,
             args=None,
             tmpdirs=[],
+            exceptions=[],
         )

@@ -12,8 +12,10 @@ import atexit
 import logging
 import tempfile
 import sys
+import traceback
 
 from pathlib import Path
+from functools import partial
 
 from datetime import datetime as dt
 from dataclasses import dataclass
@@ -22,7 +24,7 @@ from verity.backend import program
 from verity.storage.local import LocalStorage
 
 from verity.model.general_info.method import MethodKind
-from verity.model.report import MethodReport
+from verity.model.report import MethodExecutionStatus, MethodReport
 
 from verity.model.ml_model.metadata import (
     MLModelAuthor,
@@ -184,11 +186,22 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     sys.stdout = LoggerWriter(stdout_log, logging.INFO)
     sys.stderr = LoggerWriter(stderr_log, logging.ERROR)
 
+    # Set exception handler to store exceptions in context
+    sys.excepthook = partial(exception_handler, ctx)
+
     # Add exit handler to save report file
-    atexit.register(lambda: exit_handler(ctx))
+    atexit.register(exit_handler, ctx)
 
     # Init is done!
     ctx.init_ok = True
+
+
+def exception_handler(ctx: FlowCtx, exc_type, exc_value, exc_traceback):
+    # exc_type can be retrieved using type(exc_value), and exc_traceback
+    # can be retrieved using exc_value.__traceback__
+    ctx.exceptions.append(exc_value)
+    log.error("".join(traceback.format_exception(exc_value)))
+    # log.error(f"Got Error of type {exc_type}: {exc_value}")
 
 
 def exit_handler(ctx: FlowCtx):
@@ -196,6 +209,16 @@ def exit_handler(ctx: FlowCtx):
 
     # Set end date
     ctx.report.date_ended = dt.now()
+
+    # Set return status
+    # TODO: Manage constraints failure status. For now only checking
+    # if execution OK without exception.
+
+    if len(ctx.exceptions):
+        log.error("Failed method execution with errors.")
+        ctx.report.status = MethodExecutionStatus.ExecutionFailureException
+    else:
+        ctx.report.status = MethodExecutionStatus.ExecutionSuccess
 
     # Save report file
     output_path = ctx.storage.method_run_report_path(ctx.report.uuid, ctx.method_kind)

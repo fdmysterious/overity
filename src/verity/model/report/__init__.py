@@ -8,12 +8,26 @@ VERITY model for reports
 
 from __future__ import annotations
 
+from enum import Enum
 from datetime import datetime as dt
 from dataclasses import dataclass
 from datetime import datetime
 
 from verity.model.traceability import ArtifactGraph
 from verity.model.general_info.method import MethodInfo
+
+
+class MethodExecutionStatus(Enum):
+    """Method execution status"""
+
+    """Method execution failed with exception"""
+    ExecutionFailureException = "execution_failure_exception"
+
+    """Method execution succeeded but did not meet expected conditions"""
+    ExecutionFailureConstraints = "execution_failure_constraints"
+
+    """Method execution succeeded and goals are OK"""
+    ExecutionSuccess = "execution_success"
 
 
 @dataclass
@@ -30,6 +44,7 @@ class MethodReport:
     program: str  # Name of programme
     date_started: datetime
     date_ended: datetime
+    status: MethodExecutionStatus
     environment: dict[str, str]
     context: dict[str, str]
     traceability_graph: ArtifactGraph
@@ -53,6 +68,7 @@ class MethodReport:
             method_info=method_info,
             date_started=date_started,
             date_ended=None,
+            status=None,
             environment={},
             context={},
             traceability_graph=ArtifactGraph.default(),
