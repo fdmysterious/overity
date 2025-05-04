@@ -6,6 +6,7 @@ from jinja2 import Template
 from verity.exchange import report_json
 
 from verity.model.traceability import ArtifactGraph, ArtifactKind
+from verity.model.report import MethodExecutionStatus
 
 import datetime as dt
 
@@ -109,6 +110,7 @@ TEMPLATE_TXT = dedent("""\
                                 <li><strong>Started:</strong> {{ date_started }}</li>
                                 <li><strong>Ended:</strong> {{ date_ended }}</li>
                                 <li><strong>Duration:</strong> {{ duration }}</li>
+                                <li><strong>Status:</strong> {{ execution_status }}</li>
                             </ul>
                         </div>
                     </div>
@@ -333,6 +335,15 @@ def generate_traceability_graph(graph: ArtifactGraph):
 def format_duration(x: dt.timedelta) -> str:
     return f"{x.days} days {x.seconds} seconds"
 
+def execution_status_str(x: MethodExecutionStatus) -> str:
+    results = {
+        MethodExecutionStatus.ExecutionSuccess: "Success",
+        MethodExecutionStatus.ExecutionFailureException: "Failed with errors",
+        MethodExecutionStatus.ExecutionFailureConstraints: "Failed to meet constraints",
+    }
+
+    return results[x]
+
 
 if __name__ == "__main__":
     template    = Template(TEMPLATE_TXT)
@@ -355,6 +366,7 @@ if __name__ == "__main__":
 
         "date_started": report_data.date_started,
         "date_ended": report_data.date_ended,
+        "execution_status": execution_status_str(report_data.status),
 
         "duration": format_duration(report_data.date_ended - report_data.date_started),
 
