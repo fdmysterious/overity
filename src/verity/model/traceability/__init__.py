@@ -95,6 +95,7 @@ class ArtifactGraph:
     """Links between the nodes"""
 
     links: set[ArtifactLink] = field(default_factory=set)
+    metadata: dict[ArtifactKey, dict[str, str]] = field(default_factory=dict)
 
     @classmethod
     def default(cls):
@@ -116,3 +117,9 @@ class ArtifactGraph:
         assert isinstance(lk, ArtifactLink), type(lk)
 
         self.links.add(lk)
+
+    def metadata_store(self, art: ArtifactKey, key: str, data: str):
+        if art not in self.metadata:
+            self.metadata[art] = dict()
+
+        self.metadata[art][key] = data

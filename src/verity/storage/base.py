@@ -89,7 +89,7 @@ class StorageBackend(ABC):
 
     @abstractmethod
     def model_store(self, slug: str, package: MLModelPackage):
-        """Store a model"""
+        """Store a model. Shall return the hash of stored model."""
 
     # -------------------------- Generate IDs
 
