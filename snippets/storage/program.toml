@@ -1,0 +1,11 @@
+[program]
+slug="test_program"
+display_name="Test program"
+description="This is program to test VERITY functionality"
+date_created="2025-02-21"
+active=true
+
+[initiator]
+name="Florian Dupeyron"
+email="florian.dupeyron@elsys-design.com"
+role="Lead embedded SW"
