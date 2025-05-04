@@ -12,7 +12,7 @@ import json
 
 from pathlib import Path
 
-from verity.model.report import MethodReportLogItem, MethodReport
+from verity.model.report import MethodExecutionStatus, MethodReportLogItem, MethodReport
 from verity.model.general_info.method import MethodKind, MethodAuthor, MethodInfo
 from verity.model.traceability import (
     ArtifactKey,
@@ -106,6 +106,7 @@ def to_file(report: MethodReport, path: Path):
         "program": report.program,
         "date_started": report.date_started.isoformat(),
         "date_ended": report.date_ended.isoformat(),
+        "status": report.status.value,
         "environment": report.environment,
         "context": report.context,
         "method_info": _encode_method_info(report.method_info),
@@ -188,6 +189,7 @@ def from_file(path: Path):
         program=data["program"],
         date_started=dt.fromisoformat(data["date_started"]),
         date_ended=dt.fromisoformat(data["date_ended"]),
+        status=MethodExecutionStatus(data["status"]),
         environment=data["environment"],
         context=data["context"],
         method_info=_parse_method_info(data["method_info"]),
