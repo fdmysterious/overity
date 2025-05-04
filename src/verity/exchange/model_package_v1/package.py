@@ -8,6 +8,8 @@
 import json
 import tarfile
 import tempfile
+import hashlib
+
 from pathlib import Path
 
 from verity.exchange.model_package_v1 import metadata as ml_metadata
@@ -16,6 +18,15 @@ from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
 
 from verity.errors import MalformedModelPackage
+
+
+def package_sha256(path: Path):
+    path = Path(path)
+
+    with open(path, "rb") as fhandle:
+        digest = hashlib.file_digest(fhandle, "sha256")
+
+    return digest
 
 
 def package_archive_create(model_data: MLModelPackage, output_path: Path):
@@ -37,6 +48,7 @@ def package_archive_create(model_data: MLModelPackage, output_path: Path):
                 archive.add(model_data.example_implementation_path, "inference-example")
 
     # -> fhandle file is removed automatically when exiting the with... clause
+    return package_sha256(output_path)
 
 
 def _process_metadata(archive_path: Path, tf: tarfile.TarFile):

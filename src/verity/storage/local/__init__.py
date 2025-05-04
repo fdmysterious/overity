@@ -315,9 +315,11 @@ class LocalStorage(StorageBackend):
 
     def model_store(self, slug: str, pkg: MLModelPackage):
         fpath = self._model_path(slug)  # Get path for target archive
-        ml_package.package_archive_create(pkg, fpath)
+        sha256 = ml_package.package_archive_create(pkg, fpath)
 
         log.info(f"Stored model {slug} to {fpath}")
+
+        return sha256
 
     # -------------------------- Check for IDs
 

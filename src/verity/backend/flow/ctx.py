@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from verity.model.generla_info.program import ProgramInfo
+from verity.model.general_info.program import ProgramInfo
 from verity.model.general_info.method import MethodKind
 from verity.storage.local import LocalStorage
 from verity.model.report import MethodReport

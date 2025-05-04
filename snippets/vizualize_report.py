@@ -5,7 +5,7 @@ from jinja2 import Template
 
 from verity.exchange import report_json
 
-from verity.model.traceability import ArtifactGraph
+from verity.model.traceability import ArtifactGraph, ArtifactKind
 
 import datetime as dt
 
@@ -291,7 +291,36 @@ def generate_traceability_graph(graph: ArtifactGraph):
 
     print("graph TD", file=output)
     for nd in graph.nodes:
-        print(f"    {name_clean(nd.kind.value)}_{name_clean(nd.id)}[\"{nd.id} ({nd.kind.value})\"]", file=output)
+        stl = ""
+        enl = ""
+
+        # / shape /
+        if nd.kind in {ArtifactKind.AnalysisMethod, ArtifactKind.DeploymentMethod, ArtifactKind.MeasurementQualificationMethod, ArtifactKind.TrainingOptimizationMethod}:
+            stl = "[/"
+            enl = "/]"
+        # Database shape
+        elif nd.kind == ArtifactKind.Dataset:
+            stl = "[("
+            enl = ")]"
+        # ( shape )
+        elif nd.kind == ArtifactKind.Model:
+            stl = "(["
+            enl = "])"
+        # [[ shape ]]
+        elif nd.kind in {ArtifactKind.AnalysisReport, ArtifactKind.ExecutionReport, ArtifactKind.ExperimentRun, ArtifactKind.OptimizationReport}:
+            stl = "[["
+            enl = "]]"
+        # [ shape ] (standard box)
+        else:
+            stl = "["
+            enl = "]"
+
+        label_str = f"({nd.kind.value})<br>id: {nd.id}"
+        if nd in graph.metadata:
+            for k,v in graph.metadata[nd].items():
+                label_str += f"<br>{k}: {v}"
+
+        print(f"    {name_clean(nd.kind.value)}_{name_clean(nd.id)}{stl}\"{label_str}\"{enl}", file=output)
 
     for lk in graph.links:
         a_id = f"{name_clean(lk.a.kind.value)}_{name_clean(lk.a.id)}"

@@ -316,7 +316,7 @@ def model_package(
         )
 
         # Now that package is created, we can create the archive
-        ctx.storage.model_store(
+        sha256 = ctx.storage.model_store(
             slug,
             MLModelPackage(
                 metadata=meta,
@@ -327,4 +327,9 @@ def model_package(
                     else None
                 ),
             ),
+        )
+
+        # Add artifact metadata
+        ctx.report.traceability_graph.metadata_store(
+            model_key, "sha256", sha256.hexdigest()
         )

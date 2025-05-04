@@ -73,6 +73,18 @@ def _encode_traceability_graph(gr: ArtifactGraph) -> list[dict[str, str]]:
             "kind": x.kind.value,
         }
 
+    return {
+        "links": list(map(do_item, gr.links)),
+        "metadata": [
+            {
+                "kind": key.kind.value,
+                "id": key.id,
+                "data": data,
+            }
+            for key, data in gr.metadata.items()
+        ],
+    }
+
     return list(map(do_item, gr.links))
 
 
@@ -141,7 +153,15 @@ def _parse_traceability_graph(data: list[dict[str, any]]) -> ArtifactGraph:
             kind=ArtifactLinkKind(x["kind"]),
         )
 
-    return ArtifactGraph(links=list(map(process_item, data)))
+    def process_metadata(x):
+        parsed_dict = {_parse_artifact_key(it): it["data"] for it in x}
+
+        return parsed_dict
+
+    return ArtifactGraph(
+        links=list(map(process_item, data["links"])),
+        metadata=process_metadata(data["metadata"]),
+    )
 
 
 def _parse_logs(data: list[dict[str, any]]) -> list[MethodReportLogItem]:
