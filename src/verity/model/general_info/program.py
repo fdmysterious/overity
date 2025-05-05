@@ -40,5 +40,8 @@ class ProgramInfo:
     """Who initiated this program"""
     initiator: ProgramInitiator
 
+    """Is the program active?"""
+    active: bool
+
     """An optioanl description can act as a tagline to tell what the program is for"""
     description: Optional[str] = None

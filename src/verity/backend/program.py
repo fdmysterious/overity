@@ -5,11 +5,18 @@
 - March 2025
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 
 from verity.errors import ProgramNotFound
 from verity.storage.local import LocalStorage
+from verity.exchange import program_toml
+
+from verity.model.general_info.program import ProgramInitiator, ProgramInfo
+
+from datetime import date
 
 log = logging.getLogger("backend.program")
 
@@ -64,3 +71,44 @@ def infos(path: Path):
     st = LocalStorage(path)
 
     return st.program_info()
+
+
+########################################
+# Initialize local program
+########################################
+
+
+def initialize(
+    dest_path: Path,
+    slug: str,
+    display_name: str,
+    initiator_name: str,
+    initiator_email: str,
+    initiator_role: str,
+    date_created: date,
+    description: str | None = None,
+):
+    log.info(f"Initialize program in {dest_path}")
+
+    # Create program infos
+    prginfo = ProgramInfo(
+        slug=slug,
+        display_name=display_name,
+        date_created=date_created,
+        initiator=ProgramInitiator(
+            name=initiator_name,
+            email=initiator_email,
+            role=initiator_role,
+        ),
+        description=description,
+        active=True,
+    )
+
+    # Initialize local storage
+    log.debug("-> Initialize local storage folder structure")
+    st = LocalStorage(dest_path)
+    st.initialize()  # Create folder structure
+
+    # Create program.toml file
+    log.debug("-> Create program.toml file")
+    program_toml.to_file(prginfo, toml_path=st.program_info_path)

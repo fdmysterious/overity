@@ -68,6 +68,7 @@ def _program_decode(data: Dict[str, any]):
         description=program_info.get("description"),
         date_created=date.fromisoformat(program_info["date_created"]),
         initiator=initiator,
+        active=program_info["active"],
     )
 
 
@@ -89,4 +90,42 @@ def from_file(toml_path: Path):
 # Encoder
 ####################################################
 
-# TODO #
+
+def _program_encode_initiator(data: ProgramInitiator):
+    result = {"name": data.name, "email": data.email}
+
+    if data.role:
+        result["role"] = data.role
+
+    return result
+
+
+def _program_encode(data: ProgramInfo):
+    result = {
+        "slug": data.slug,
+        "display_name": data.display_name,
+        "date_created": data.date_created.isoformat(),
+        "active": data.active,
+    }
+
+    if data.description:
+        result["description"] = data.description
+
+    return result
+
+
+def to_file(program_info: ProgramInfo, toml_path: Path):
+    toml_path = Path(toml_path)
+
+    # Create output dictionary
+    result_dict = {
+        "program": _program_encode(program_info),
+        "initiator": _program_encode_initiator(program_info.initiator),
+    }
+
+    # Validate against schema
+    jsonschema.validate(result_dict, SCHEMA)
+
+    # Output data to toml file
+    with open(toml_path, "w") as fhandle:
+        toml.dump(result_dict, fhandle)
