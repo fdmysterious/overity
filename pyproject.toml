@@ -87,6 +87,20 @@ exclude_lines = [
 python = "3.12"
 
 
+## ---------------------------- Program testing environment
+
+[tool.hatch.envs.program_test]
+
+python = "3.12"
+
+extra-dependencies = [
+	"tensorflow==2.19.0",
+	"keras==3.9.2",
+	"pandas==2.2.3",
+	"scikit-learn==1.6.1",
+]
+
+
 ## ---------------------------- Type-checking environment
 
 [tool.hatch.envs.types]
