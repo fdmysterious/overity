@@ -242,19 +242,19 @@ TEMPLATE_TXT = dedent("""\
                                 <th>Message</th>
                             </thead>
 
-                            <tbody>
-                                {% for item in logs %}
-                                    <tr>
-                                        <td>#{{ loop.index }}</td>
-                                        <td>{{ item.timestamp }}</td>
-                                        <td>{{ item.severity }}</td>
-                                        <td>{{ item.source }}</td>
-                                        <td>{{ item.message }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                        <tbody>
+                            {% for item in logs %}
+                                <tr>
+                                    <td>#{{ loop.index }}</td>
+                                    <td>{{ item.timestamp }}</td>
+                                    <td>{{ item.severity }}</td>
+                                    <td>{{ item.source }}</td>
+                                    <td><pre>{{ item.message }}</pre></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
                     <!-- -------------------------- -->
 
@@ -388,4 +388,5 @@ if __name__ == "__main__":
         ]
     }
 
-    print(template.render(**template_in_data))
+    with open("output.html", mode="w", encoding="utf-8") as fhandle:
+        print(template.render(**template_in_data), file=fhandle)

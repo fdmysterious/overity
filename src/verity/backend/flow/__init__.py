@@ -120,6 +120,7 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
 
     # Init local storage
     ctx.storage = LocalStorage(ctx.pdir)
+    ctx.storage.initialize()  # Ensure all folders exist!
 
     # Identify method slug and kind
     ctx.method_path = method_path
