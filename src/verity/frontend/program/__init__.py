@@ -10,8 +10,9 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 
 from verity.frontend.program import infos
+from verity.frontend.program import init
 
-CLI_SUBCOMMANDS = {"infos": infos}
+CLI_SUBCOMMANDS = {"infos": infos, "init": init}
 
 
 def setup_parser(parser: ArgumentParser):
