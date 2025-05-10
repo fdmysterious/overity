@@ -33,6 +33,13 @@ class MethodExecutionStatus(Enum):
     ExecutionSuccess = "execution_success"
 
 
+class MethodReportKind(Enum):
+    Experiment = "experiment"
+    TrainingOptimization = "training_optimization"
+    Execution = "execution"
+    Analysis = "analysis"
+
+
 @dataclass
 class MethodReportLogItem:
     timestamp: datetime

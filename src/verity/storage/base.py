@@ -13,6 +13,7 @@ from typing import Callable
 from verity.model.general_info.method import MethodKind
 from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
+from verity.model.report import MethodReportKind
 
 from pathlib import Path
 
@@ -68,6 +69,34 @@ class StorageBackend(ABC):
     @abstractmethod
     def analysis_reports(self):
         """Get list of analysis reports in program"""
+
+    @abstractmethod
+    def experiment_report_load(self, identifier: str):
+        """Load an experiment run report"""
+
+    @abstractmethod
+    def optimization_report_load(self, identifier: str):
+        """Load an optimization report"""
+
+    @abstractmethod
+    def execution_report_load(self, identifier: str):
+        """Load an execution report"""
+
+    @abstractmethod
+    def analysis_report_load(self, identifier: str):
+        """Load an analysis report"""
+
+    def report_load(self, report_kind: MethodReportKind, identifier: str):
+        """Load a report for a givne kind value"""
+
+        if report_kind == MethodReportKind.Experiment:
+            return self.experiment_report_load(identifier)
+        elif report_kind == MethodReportKind.TrainingOptimization:
+            return self.optimization_report_load(identifier)
+        elif report_kind == MethodReportKind.Execution:
+            return self.execution_report_load(identifier)
+        elif report_kind == MethodReportKind.Analysis:
+            return self.analysis_report_load(identifier)
 
     # -------------------------- Precipitates
 
