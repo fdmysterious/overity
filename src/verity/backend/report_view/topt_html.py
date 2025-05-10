@@ -17,7 +17,7 @@ from io import StringIO
 from jinja2 import Template
 
 from verity.model.traceability import ArtifactGraph, ArtifactKind
-from verity.model.report import Report, MethodExecutionStatus
+from verity.model.report import MethodReport, MethodExecutionStatus
 from verity.model.report.metrics import (
     Metric,
     SimpleValue,
@@ -408,7 +408,7 @@ def _process_metric(x: Metric):
         return f"{x.value*100:.2f} %"
 
 
-def render(report_data: Report, report_path: Path | None = None):
+def render(report_data: MethodReport, report_path: Path | None = None):
     template = Template(TEMPLATE_TXT)
 
     # Filter environment information
