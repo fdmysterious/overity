@@ -15,6 +15,9 @@ from datetime import datetime
 
 from verity.model.traceability import ArtifactGraph
 from verity.model.general_info.method import MethodInfo
+from verity.model.report.metrics import (
+    Metric,
+)
 
 
 class MethodExecutionStatus(Enum):
@@ -51,6 +54,7 @@ class MethodReport:
     method_info: MethodInfo
     logs: list[MethodReportLogItem]
     outputs: any | None = None
+    metrics: dict[str, Metric] | None = None
 
     @classmethod
     def default(
@@ -74,6 +78,7 @@ class MethodReport:
             traceability_graph=ArtifactGraph.default(),
             logs=[],
             outputs=None,
+            metrics={},
         )
 
     def log_add(self, tstamp: dt, severity: str, source: str, message: str):

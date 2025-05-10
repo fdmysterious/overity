@@ -7,6 +7,14 @@ from verity.exchange import report_json
 
 from verity.model.traceability import ArtifactGraph, ArtifactKind
 from verity.model.report import MethodExecutionStatus
+from verity.model.report.metrics import (
+    Metric,
+
+    SimpleValue,
+    LinScaleValue,
+    LinRangeValue,
+    PercentageValue,
+)
 
 import datetime as dt
 
@@ -205,7 +213,23 @@ TEMPLATE_TXT = dedent("""\
                         <h2>4. Metrics</h2>
                     </div>
 
-                    <p>TODO</p>
+                    <div class="row">
+                        {% for metric in metrics %}
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{metric.name}}</div>
+                                            <div class="h5 mb-0 font-weigh-bold text-gray-800">{{metric.value}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
 
 
                     <!-- -------------------------- -->
@@ -344,6 +368,16 @@ def execution_status_str(x: MethodExecutionStatus) -> str:
 
     return results[x]
 
+def process_metric(x: Metric):
+    if isinstance(x, SimpleValue):
+        return f"{x.value:.2f}"
+    elif isinstance(x, LinScaleValue):
+        return f"{x.value:.2f} ({x.low:.2f} / {x.high:.2f})"
+    elif isinstance(x, LinRangeValue):
+        return f"{x.value} ({x.low} / {x.high})"
+    elif isinstance(x, PercentageValue):
+        return f"{x.value*100:.2f} %"
+
 
 if __name__ == "__main__":
     template    = Template(TEMPLATE_TXT)
@@ -385,6 +419,11 @@ if __name__ == "__main__":
         "logs": [
             {"timestamp": it.timestamp, "severity": it.severity, "source": it.source, "message": it.message}
             for it in report_data.logs
+        ],
+
+        "metrics": [
+            {"name": k, "value": process_metric(v)}
+            for k,v in report_data.metrics.items()
         ]
     }
 

@@ -260,8 +260,11 @@ with vapi.model_package("lstm_init", exchange_format="keras", target="agnostic")
         ]
     )
 
-# list all data in history
-print(history.history.keys())
+with vapi.metrics_save() as vkpi:
+    vkpi.percentage("accuracy", history.history["accuracy"][-1])
+    vkpi.percentage("loss",     history.history["loss"][-1])
+    vkpi.simple("val_accuracy", history.history["val_accuracy"][-1])
+    vkpi.simple("val_loss", history.history["val_loss"][-1])
 
 ####################################################
 
