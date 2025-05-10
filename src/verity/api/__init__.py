@@ -70,3 +70,7 @@ def model_use(slug: str):
 def model_package(slug: str, exchange_format: str, target: str = "anogstic"):
     with flow.model_package(_CTX, slug, exchange_format, target) as vpkg:
         yield vpkg
+
+
+def metrics_save():
+    return flow.metrics_save(_CTX)

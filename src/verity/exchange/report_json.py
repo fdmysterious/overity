@@ -22,6 +22,9 @@ from verity.model.traceability import (
     ArtifactKind,
 )
 
+from verity.model.report import metrics
+from verity.model.report.metrics import Metric
+
 from datetime import datetime as dt
 
 
@@ -100,6 +103,10 @@ def _encode_logs(x: list[MethodReportLogItem]) -> list[dict[str, str]]:
     return list(map(do_item, x))
 
 
+def _encode_metrics(x: dict[str, Metric]) -> list[dict[str, any]]:
+    return {k: v.data() for k, v in x.items()}
+
+
 def to_file(report: MethodReport, path: Path):
     output_obj = {
         "uuid": report.uuid,
@@ -112,6 +119,7 @@ def to_file(report: MethodReport, path: Path):
         "method_info": _encode_method_info(report.method_info),
         "traceability_graph": _encode_traceability_graph(report.traceability_graph),
         "logs": _encode_logs(report.logs),
+        "metrics": _encode_metrics(report.metrics),
         # outputs TODO #
     }
 
@@ -177,6 +185,10 @@ def _parse_logs(data: list[dict[str, any]]) -> list[MethodReportLogItem]:
     return list(map(process_item, data))
 
 
+def _parse_metrics(data: dict[str, dict[str, any]]) -> list[Metric]:
+    return {k: metrics.from_data(v) for k, v in data.items()}
+
+
 def from_file(path: Path):
     path = Path(path)
 
@@ -195,6 +207,7 @@ def from_file(path: Path):
         method_info=_parse_method_info(data["method_info"]),
         traceability_graph=_parse_traceability_graph(data["traceability_graph"]),
         logs=_parse_logs(data["logs"]),
+        metrics=_parse_metrics(data["metrics"]),
         outputs=None,  # TODO: Parse outputs
     )
 

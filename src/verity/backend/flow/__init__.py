@@ -40,6 +40,13 @@ from verity.model.traceability import (
     ArtifactLink,
 )
 
+from verity.model.report.metrics import (
+    SimpleValue,
+    LinScaleValue,
+    LinRangeValue,
+    PercentageValue,
+)
+
 from verity.exchange import report_json
 from verity.exchange.method_common import file_py, file_ipynb
 from verity.errors import UnidentifiedMethodError, UninitAPIError
@@ -357,3 +364,38 @@ def model_package(
         ctx.report.traceability_graph.metadata_store(
             model_key, "sha256", sha256.hexdigest()
         )
+
+
+# TODO Add checks for duplicates and value constraints (when constructing?)
+class MetricSaver:
+    def __init__(self, ctx: FlowCtx):
+        self.ctx = ctx
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        pass
+
+    ###
+
+    def simple(self, name: str, value: float):
+        log.info(f"-> Add simple metric {name}")
+        self.ctx.report.metrics[name] = SimpleValue(value=value)
+
+    def scale_lin(self, name: str, value: float, low: float, high: float):
+        log.info(f"-> Add linear scale {name}")
+        self.ctx.report.metrics[name] = LinScaleValue(low=low, high=high, value=value)
+
+    def range_lin(self, name: str, value: int, low: int, high: int):
+        log.info(f"-> Add linear range {name}")
+        self.ctx.report.metrics[name] = LinRangeValue(low=low, high=high, value=value)
+
+    def percentage(self, name: str, value: float):
+        log.info(f"-> Add percentage {name}")
+        self.ctx.report.metrics[name] = PercentageValue(value=value)
+
+
+@_api_guard
+def metrics_save(ctx: FlowCtx):
+    return MetricSaver(ctx)
