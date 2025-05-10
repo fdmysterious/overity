@@ -10,9 +10,10 @@ import sys
 from verity.frontend import program
 from verity.frontend import method
 from verity.frontend import model
+from verity.frontend import report
 
 
-CLI_GROUPS = {program, method, model}
+CLI_GROUPS = {program, method, model, report}
 
 
 def main():

@@ -8,6 +8,8 @@ VERITY-AI toolkit errors
 
 from pathlib import Path
 
+from verity.model.report import MethodReportKind
+
 
 class EmptyMethodDescription(Exception):
     def __init__(self, file_path: Path):
@@ -70,3 +72,16 @@ class MalformedModelPackage(Exception):
 
         self.archive_path = archive_path
         self.what = what
+
+
+class ReportNotFound(Exception):
+    def __init__(
+        self, program_slug: str, report_type: MethodReportKind, identifier: str
+    ):
+        super().__init__(
+            f"Report '{identifier}' of type '{report_type.value}' from program '{program_slug}' not found"
+        )
+
+        self.program_slug = program_slug
+        self.report_type = report_type
+        self.identifier = identifier

@@ -13,12 +13,19 @@ from pathlib import Path
 from verity.model.general_info.method import MethodKind, MethodInfo
 from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
+from verity.model.report import MethodReportKind
 
 from verity.exchange import execution_target_toml, program_toml
 from verity.storage.base import StorageBackend
 from verity.exchange.method_common import file_ipynb, file_py
+from verity.exchange import report_json
 
-from verity.errors import DuplicateSlugError, UnidentifiedMethodError, ModelNotFound
+from verity.errors import (
+    DuplicateSlugError,
+    UnidentifiedMethodError,
+    ModelNotFound,
+    ReportNotFound,
+)
 
 from verity.exchange.model_package_v1 import package as ml_package
 
@@ -264,6 +271,25 @@ class LocalStorage(StorageBackend):
 
         # List of execution reports is implemented as a list of zip files with a uuid4 name
 
+        raise NotImplementedError
+
+    def experiment_report_load(self, identifier: str):
+        raise NotImplementedError
+
+    def optimization_report_load(self, identifier: str):
+        report_path = self._optimization_report_path(identifier)
+
+        if not report_path.is_file():
+            raise ReportNotFound(
+                self.base_folder, MethodReportKind.TrainingOptimization, identifier
+            )
+
+        return report_path, report_json.from_file(report_path)
+
+    def execution_report_load(self, identifier: str):
+        raise NotImplementedError
+
+    def analysis_report_load(self, identifier: str):
         raise NotImplementedError
 
     # -------------------------- Precipitates

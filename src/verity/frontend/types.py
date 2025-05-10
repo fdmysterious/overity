@@ -9,6 +9,7 @@ Utility types for frontend
 from argparse import ArgumentError
 
 from verity.model.general_info.method import MethodKind
+from verity.model.report import MethodReportKind
 
 
 def parse_method_kind(x: str):
@@ -26,6 +27,22 @@ def parse_method_kind(x: str):
 
     elif x in {"analysis", "an"}:
         return MethodKind.Analysis
+
+    else:
+        raise ArgumentError(x)
+
+
+def parse_report_kind(x: str):
+    """Parse report kind from string argument."""
+
+    if x in {"training-optimization", "to", "topt"}:
+        return MethodReportKind.TrainingOptimization
+
+    elif x in {"execution", "exec", "ex"}:
+        return MethodReportKind.Execution
+
+    elif x in {"analysis", "an"}:
+        return MethodReportKind.Analysis
 
     else:
         raise ArgumentError(x)
