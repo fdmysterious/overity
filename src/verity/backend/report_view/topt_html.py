@@ -6,6 +6,8 @@ Report HTML view for training/optimization reports
 - May 2025
 """
 
+# TODO: Embed external resources
+
 from __future__ import annotations
 
 import datetime as dt

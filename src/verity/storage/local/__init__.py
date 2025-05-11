@@ -99,21 +99,6 @@ class LocalStorage(StorageBackend):
     def _execution_target_path(self, slug: str):
         return self.execution_targets_folder / f"{slug}.toml"
 
-    # def _training_optimization_info_path(self, slug: str):
-    #    return self.training_optimization_folder / slug / "info.toml"
-
-    # def _measurement_qualification_info_path(self, slug: str):
-    #    return self.measurement_qualification_folder / slug / "info.toml"
-
-    # def _deployement_method_info_path(self, slug: str):
-    #    return self.deployment_folder / slug / "info.toml"
-
-    # def _analysis_method_info_path(self, slug: str):
-    #    return self.analysis_folder / slug / "info.toml"
-
-    # def _experiments_method_info_path(self, slug: str):
-    #    return self.experiments_folder / slug / "info.toml"
-
     def _experiment_run_report_path(self, run_uuid: str):
         return self.experiment_runs_folder / f"{run_uuid}.json"
 
@@ -308,6 +293,19 @@ class LocalStorage(StorageBackend):
         raise NotImplementedError
 
     def analysis_report_load(self, identifier: str):
+        raise NotImplementedError
+
+    def experiment_report_remove(self, identifier: str):
+        raise NotImplementedError
+
+    def optimization_report_remove(self, identifier: str):
+        pp = self._optimization_report_path(identifier)
+        pp.unlink(missing_ok=True)
+
+    def execution_report_remove(self, identifier: str):
+        raise NotImplementedError
+
+    def analysis_report_remove(self, identifier: str):
         raise NotImplementedError
 
     # -------------------------- Precipitates

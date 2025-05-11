@@ -108,6 +108,32 @@ class StorageBackend(ABC):
         elif report_kind == MethodReportKind.Analysis:
             return self.analysis_report_load(identifier)
 
+    @abstractmethod
+    def experiment_report_remove(self, identifier: str):
+        """Remove an experiment run report"""
+
+    @abstractmethod
+    def optimization_report_remove(self, identifier: str):
+        """Remove an optimization report"""
+
+    @abstractmethod
+    def execution_report_remove(self, identifier: str):
+        """Remove an execution report"""
+
+    @abstractmethod
+    def analysis_report_remove(self, identifier: str):
+        """Remove an analysis report"""
+
+    def report_remove(self, report_kind: MethodReportKind, identifier: str):
+        if report_kind == MethodReportKind.Experiment:
+            self.experiment_report_remove(identifier)
+        elif report_kind == MethodReportKind.TrainingOptimization:
+            self.optimization_report_remove(identifier)
+        elif report_kind == MethodReportKind.Execution:
+            self.execution_report_remove(identifier)
+        elif report_kind == MethodReportKind.Analysis:
+            self.analysis_report_remove(identifier)
+
     # -------------------------- Precipitates
 
     @abstractmethod
