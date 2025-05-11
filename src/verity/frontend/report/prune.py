@@ -5,3 +5,40 @@ VERITY command to prune unsucessful reports
 - Florian Dupeyron (florian.dupeyron@elsys-design.com)
 - May 2025
 """
+
+import logging
+
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from verity.backend import report as b_report
+from verity.backend import program as b_program
+
+from verity.frontend import types
+
+log = logging.getLogger("frontend.report.prune")
+
+
+def setup_parser(parser: ArgumentParser):
+    subcommand = parser.add_parser(
+        "prune", help="Remove reports that are not succesful"
+    )
+    subcommand.add_argument(
+        "kind", type=types.parse_report_kind, help="What report kind to prune"
+    )
+
+    return subcommand
+
+
+def run(args: Namespace):
+    cwd = Path.cwd()
+    pdir = b_program.find_current(start_path=cwd)
+
+    reports_ok = b_report.list(pdir, kind=args.kind, include_all=False)
+    reports_all = b_report.list(pdir, kind=args.kind, include_all=True)
+
+    reports_to_remove = frozenset(reports_all) - frozenset(reports_ok)
+
+    for report in reports_to_remove:
+        print(report)
+        b_report.remove(args.kind, report)
