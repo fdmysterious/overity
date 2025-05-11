@@ -8,9 +8,9 @@ VERITY frontend commands to manipulate reports
 
 from argparse import ArgumentParser, Namespace
 
-from verity.frontend.report import view
+from verity.frontend.report import view, list_cmd
 
-CLI_SUBCOMMANDS = {view}
+CLI_SUBCOMMANDS = {view, list_cmd}
 
 
 def setup_parser(parser: ArgumentParser):

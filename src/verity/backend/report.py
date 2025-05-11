@@ -23,3 +23,10 @@ def load(pdir: Path, kind: MethodReportKind, identifier: str):
 
     st = LocalStorage(pdir)
     return st.report_load(kind, identifier)
+
+
+def list(pdir: Path, kind: MethodReportKind, include_all: bool = False):
+    log.info(f"Get list of '{kind.value}' reports for program in '{pdir}'")
+
+    st = LocalStorage(pdir)
+    return st.reports_list(kind, include_all=include_all)

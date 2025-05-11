@@ -13,12 +13,11 @@ from pathlib import Path
 from verity.model.general_info.method import MethodKind, MethodInfo
 from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
-from verity.model.report import MethodReportKind
+from verity.model.report import MethodReportKind, MethodExecutionStatus
 
-from verity.exchange import execution_target_toml, program_toml
+from verity.exchange import execution_target_toml, program_toml, report_json
 from verity.storage.base import StorageBackend
 from verity.exchange.method_common import file_ipynb, file_py
-from verity.exchange import report_json
 
 from verity.errors import (
     DuplicateSlugError,
@@ -254,19 +253,38 @@ class LocalStorage(StorageBackend):
 
     # -------------------------- Shelf
 
-    def experiment_runs(self):
+    def experiment_runs(self, include_all: bool = False):
         """Get list of experiment runs reports in program"""
         raise NotImplementedError
 
-    def optimization_reports(self):
-        """Get list of optimization reports in program"""
-        raise NotImplementedError
+    def optimization_reports(self, include_all: bool = False):
+        """Get list of identifiers for optimization reports in program"""
 
-    def execution_reports(self):
+        def check_report(pp: Path):
+            try:
+                report_info = report_json.from_file(self._optimization_report_path(pp))
+
+                # If we are here, the file is a valid report file.
+                return include_all or (
+                    report_info.status == MethodExecutionStatus.ExecutionSuccess
+                )
+
+            except Exception as exc:
+                log.info(f"Error processing report {pp}: {type(exc)}: {exc!s}")
+                log.debug(traceback.format_exc())
+
+        return tuple(
+            filter(
+                check_report,
+                map(lambda x: x.stem, self.optimization_reports_folder.glob("*.json")),
+            )
+        )
+
+    def execution_reports(self, include_all: bool = False):
         """Get list of execution reports in program"""
         raise NotImplementedError
 
-    def analysis_reports(self):
+    def analysis_reports(self, include_all: bool = False):
         """Get list of analysis reports in program"""
 
         # List of execution reports is implemented as a list of zip files with a uuid4 name
