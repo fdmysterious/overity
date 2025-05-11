@@ -55,20 +55,30 @@ class StorageBackend(ABC):
     # -------------------------- Shelf
 
     @abstractmethod
-    def experiment_runs(self):
+    def experiment_runs(self, include_all: bool = False):
         """Get list of experiment runs reports in program"""
 
     @abstractmethod
-    def optimization_reports(self):
+    def optimization_reports(self, include_all: bool = False):
         """Get list of optimization reports in program"""
 
     @abstractmethod
-    def execution_reports(self):
+    def execution_reports(self, include_all: bool = False):
         """Get list of execution reports in program"""
 
     @abstractmethod
-    def analysis_reports(self):
+    def analysis_reports(self, include_all: bool = False):
         """Get list of analysis reports in program"""
+
+    def reports_list(self, kind: MethodReportKind, include_all: bool = False):
+        if kind == MethodReportKind.Experiment:
+            return self.experiment_runs(include_all=include_all)
+        elif kind == MethodReportKind.TrainingOptimization:
+            return self.optimization_reports(include_all=include_all)
+        elif kind == MethodReportKind.Execution:
+            return self.execution_reports(include_all=include_all)
+        elif kind == MethodReportKind.Analysis:
+            return self.analysis_reports(include_all=include_all)
 
     @abstractmethod
     def experiment_report_load(self, identifier: str):
