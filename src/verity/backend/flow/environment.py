@@ -23,11 +23,11 @@ def platform_info():
 
 def installed_packages():
     """List installed packages in current environment using pip freeze"""
-    import subprocess
+    import pkg_resources
 
-    output = subprocess.run(["pip", "freeze"], capture_output=True)
+    installed_packages = pkg_resources.working_set
+    installed_packages_list = sorted(
+        ["%s==%s" % (i.key, i.version) for i in installed_packages]
+    )
 
-    # Parse output
-    pkg_list = output.stdout.decode("utf-8").split("\n")
-
-    return pkg_list
+    return installed_packages_list
