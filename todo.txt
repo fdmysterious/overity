@@ -1,1 +1,3 @@
 ( ) What to do if two methods with the same slug exist (with two different extensions, .py and .ipynb)?
+( ) Traceability graph generation: escape names that could lead to mermaid syntax error
+( ) Report pruning: add options to prune reports that are not linked to an existing precipitate (except for execution reports)
