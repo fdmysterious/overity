@@ -30,3 +30,8 @@ def list(pdir: Path, kind: MethodReportKind, include_all: bool = False):
 
     st = LocalStorage(pdir)
     return st.reports_list(kind, include_all=include_all)
+
+
+def remove(pdir: Path, kind: MethodReportKind, identifier: str):
+    st = LocalStorage(pdir)
+    st.report_remove(kind, identifier)

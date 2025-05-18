@@ -41,4 +41,4 @@ def run(args: Namespace):
 
     for report in reports_to_remove:
         print(report)
-        b_report.remove(args.kind, report)
+        b_report.remove(pdir, args.kind, report)

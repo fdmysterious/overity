@@ -46,6 +46,9 @@ dependencies = [
 #Issues        = "https://XXXX"
 #Source        = "https://XXXX"
 
+[project.scripts]
+verity = "verity.frontend:main"
+
 [tool.hatch.version]
 path = "src/verity/__about__.py"
 
