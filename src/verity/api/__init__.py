@@ -67,7 +67,7 @@ def model_use(slug: str):
 
 
 @contextmanager
-def model_package(slug: str, exchange_format: str, target: str = "anogstic"):
+def model_package(slug: str, exchange_format: str, target: str = "agnostic"):
     with flow.model_package(_CTX, slug, exchange_format, target) as vpkg:
         yield vpkg
 
