@@ -30,6 +30,10 @@ class StorageBackend(ABC):
     def execution_targets(self):
         """Get list of execution targets registered in program"""
 
+    @abstractmethod
+    def capabilities(self):
+        """Get list of specific capabilities defined in program"""
+
     # -------------------------- Ingredients
 
     @abstractmethod
