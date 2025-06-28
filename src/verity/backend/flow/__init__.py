@@ -183,6 +183,9 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
             )
         )
 
+    else:
+        raise NotImplementedError
+
     # Initialize logger
     root_log = logging.getLogger("")
     root_log.addHandler(LogArrayHandler(report=ctx.report))
