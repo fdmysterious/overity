@@ -15,7 +15,12 @@ from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
 from verity.model.report import MethodReportKind, MethodExecutionStatus
 
-from verity.exchange import execution_target_toml, program_toml, report_json
+from verity.exchange import (
+    execution_target_toml,
+    program_toml,
+    report_json,
+    capability_toml,
+)
 from verity.storage.base import StorageBackend
 from verity.exchange.method_common import file_ipynb, file_py
 
@@ -43,6 +48,7 @@ class LocalStorage(StorageBackend):
         self.precipitates_folder = self.base_folder / "precipitates"
 
         self.execution_targets_folder = self.catalyst_folder / "execution_targets"
+        self.capabilities_folder = self.catalyst_folder / "capabilities"
 
         self.training_optimization_folder = (
             self.ingredients_folder / "training_optimization"
@@ -65,6 +71,7 @@ class LocalStorage(StorageBackend):
         # Leaf folders are deepest folders that we use
         self.leaf_folders = [
             self.execution_targets_folder,
+            self.capabilities_folder,
             self.training_optimization_folder,
             self.measurement_qualification_folder,
             self.deployment_folder,
@@ -98,6 +105,9 @@ class LocalStorage(StorageBackend):
 
     def _execution_target_path(self, slug: str):
         return self.execution_targets_folder / f"{slug}.toml"
+
+    def _capability_path(self, slug: str):
+        return self.capabilities_folder / f"{slug}.toml"
 
     def _experiment_run_report_path(self, run_uuid: str):
         return self.experiment_runs_folder / f"{run_uuid}.json"
@@ -158,6 +168,22 @@ class LocalStorage(StorageBackend):
                 log.debug(traceback.format_exc())
 
         return map(process_file, self.execution_targets_folder.glob("**/*.toml"))
+
+    def capabilities(self):
+        """Get list of defined capabilities in current program as a generator"""
+
+        log.debug(f"Get list of capabilities from {self.capabilities_folder}")
+
+        def process_file(path):
+            log.debug(f"Check file {path}")
+
+            try:
+                return capability_toml.from_file(path)
+            except Exception as exc:
+                log.debug(f"Error checking {path}: {exc!s}")
+                log.debug(traceback.format_exc())
+
+        return map(process_file, self.capabilities_folder.glob("**/*.toml"))
 
     # -------------------------- Ingredients
 
