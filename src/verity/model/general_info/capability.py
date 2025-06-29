@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True, eq=True)
 class Capability:
     """Identifies a requirement on a test bench
 
@@ -26,3 +26,6 @@ class Capability:
 
     """Optional description"""
     description: str | None = None
+
+    def __hash__(self):
+        return hash(self.slug)
