@@ -9,8 +9,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from verity.model.general_info.capability import Capability
-
 
 @dataclass
 class InferenceAgentAuthor:
@@ -54,7 +52,7 @@ class InferenceAgentMetadata:
     maintainers: list[InferenceAgentMaintainer]
 
     """List of capabilities for the inference agent"""
-    capabilities: frozenset[Capability]
+    capabilities: frozenset[str]
 
     """List of compatible execution targets"""
     compatible_targets: frozenset[str]
