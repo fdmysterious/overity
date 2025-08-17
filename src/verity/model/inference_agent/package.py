@@ -13,11 +13,11 @@ from verity.model.inference_agent.metadata import InferenceAgentMetadata
 
 
 @dataclass
-class InferenceAgentPackage:
-    """Describes properties for an inference agent package"""
+class InferenceAgentPackageInfo:
+    """Describes what is needed to build an inference agent package"""
 
     """Inference agent metadata information"""
     metadata: InferenceAgentMetadata
 
-    """Path to inference agent artefact on local disk"""
-    inference_agent_path: Path
+    """Path to inference agent data on local disk"""
+    agent_data_path: Path

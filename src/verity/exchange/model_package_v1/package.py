@@ -20,6 +20,7 @@ from verity.model.ml_model.package import MLModelPackage
 from verity.errors import MalformedModelPackage
 
 
+# TODO # Merge with one used in inference agent package
 def package_sha256(path: Path):
     path = Path(path)
 
