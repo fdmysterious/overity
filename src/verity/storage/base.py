@@ -15,6 +15,9 @@ from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
 from verity.model.report import MethodReportKind
 
+from verity.model.inference_agent.metadata import InferenceAgentMetadata
+from verity.model.inference_agent.package import InferenceAgentPackageInfo
+
 from pathlib import Path
 
 
@@ -145,6 +148,10 @@ class StorageBackend(ABC):
         """Get list of available models in program"""
 
     @abstractmethod
+    def inference_agents(self):
+        """Get list of available inference agents in program"""
+
+    @abstractmethod
     def datasets(self):
         """Get list of available datasets in program"""
 
@@ -159,6 +166,20 @@ class StorageBackend(ABC):
     @abstractmethod
     def model_store(self, slug: str, package: MLModelPackage):
         """Store a model. Shall return the hash of stored model."""
+
+    @abstractmethod
+    def inference_agent_info_get(self, slug: str) -> InferenceAgentMetadata:
+        """Get info for a given inference agent slug"""
+
+    @abstractmethod
+    def inference_agent_load(
+        self, slug: str, target_folder: Path
+    ) -> InferenceAgentPackageInfo:
+        """Load an inference agent package into the specified target folder"""
+
+    @abstractmethod
+    def inference_agent_store(self, slug: str, package: InferenceAgentPackageInfo):
+        """Store an inference agent package. Shall return the hash of stored agent"""
 
     # -------------------------- Generate IDs
 
