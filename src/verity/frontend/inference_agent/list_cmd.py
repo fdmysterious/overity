@@ -43,10 +43,8 @@ def run(args: Namespace):
         print(f"Found the following agents in {pdir}:")
         print("")
 
-        headers = ("Agent path", "Agent name")
-        rows = (
-            (agt_path.relative_to(pdir), agt_info.name) for agt_path, agt_info in agents
-        )
+        headers = ("Agent slug", "Agent name")
+        rows = ((agt_slug, agt_info.name) for agt_slug, agt_info in agents)
 
         print(f_table.table_format(headers, rows))
 
@@ -54,8 +52,8 @@ def run(args: Namespace):
             print("")
             print("While processing, the following errors has been found:")
             print("")
-            for fpath, err in errors:
-                print(f"- in {fpath.relative_to(pdir)}: {err!s}")
+            for slug, err in errors:
+                print(f"- in {slug}: {err!s}")
 
     except ProgramNotFound as exc:
         log.exception(exc)

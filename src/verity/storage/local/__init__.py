@@ -347,13 +347,19 @@ class LocalStorage(StorageBackend):
     # -------------------------- Precipitates
 
     def models(self):
-        """Get list of available models in program"""
+        """Get list of available models in program
+
+        Returns:
+            A list of tuples containing (slug, metadata)
+        """
 
         def process_file(x: Path):
+            slug = x.name.removesuffix(".tar.gz")
+
             try:
-                return (x, ml_package.metadata_load(x))
+                return (slug, ml_package.metadata_load(x))
             except Exception as exc:
-                return (x, exc)
+                return (slug, exc)
 
         processed = list(map(process_file, self.models_folder.glob("*.tar.gz")))
 
@@ -361,7 +367,7 @@ class LocalStorage(StorageBackend):
         found_models = list(
             filter(lambda x: isinstance(x[1], MLModelMetadata), processed)
         )
-        found_errors = list(filter(lambda x: isinstance(x[0], Exception), processed))
+        found_errors = list(filter(lambda x: isinstance(x[1], Exception), processed))
 
         return found_models, found_errors
 
@@ -370,13 +376,19 @@ class LocalStorage(StorageBackend):
         raise NotImplementedError
 
     def inference_agents(self):
-        """Get a list of available inference agents in program"""
+        """Get a list of available inference agents in program
+
+        Returns:
+            A list of tuples containing (slug, metadata)
+        """
 
         def process_file(x: Path):
+            slug = x.name.removesuffix(".tar.gz")
+
             try:
-                return (x, agent_package.metadata_load(x))
+                return (slug, agent_package.metadata_load(x))
             except Exception as exc:
-                return (x, exc)
+                return (slug, exc)
 
         processed = list(map(process_file, self.agents_folder.glob("*.tar.gz")))
 
@@ -384,7 +396,7 @@ class LocalStorage(StorageBackend):
         found_agents = list(
             filter(lambda x: isinstance(x[1], InferenceAgentMetadata), processed)
         )
-        found_errors = list(filter(lambda x: isinstance(x[0], Exception), processed))
+        found_errors = list(filter(lambda x: isinstance(x[1], Exception), processed))
 
         return (
             found_agents,
