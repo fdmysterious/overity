@@ -42,13 +42,13 @@ def run(args: Namespace):
         print(f"Found the following models in {pdir}:")
         print("")
 
-        headers = ("Model path", "Model name")
+        headers = ("Model slug", "Model name")
         rows = (
             (
-                mod_path.relative_to(pdir),
+                mod_slug,
                 mod_info.name,
             )
-            for mod_path, mod_info in models
+            for mod_slug, mod_info in models
         )
 
         print(f_table.table_format(headers, rows))
@@ -57,8 +57,8 @@ def run(args: Namespace):
             print("")
             print("While processing, the following errors has been found:")
             print("")
-            for fpath, err in errors:
-                print(f"- in {fpath.relative_to(pdir)!s}: {err!s}")
+            for slug, err in errors:
+                print(f"- in {slug!s}: {err!s}")
 
     except ProgramNotFound as exc:
         log.exception(str(exc))
