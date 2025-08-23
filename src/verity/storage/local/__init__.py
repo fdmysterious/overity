@@ -15,6 +15,9 @@ from verity.model.ml_model.metadata import MLModelMetadata
 from verity.model.ml_model.package import MLModelPackage
 from verity.model.report import MethodReportKind, MethodExecutionStatus
 
+from verity.model.inference_agent.metadata import InferenceAgentMetadata
+from verity.model.inference_agent.package import InferenceAgentPackageInfo
+
 from verity.exchange import (
     execution_target_toml,
     program_toml,
@@ -28,10 +31,12 @@ from verity.errors import (
     DuplicateSlugError,
     UnidentifiedMethodError,
     ModelNotFound,
+    AgentNotFound,
     ReportNotFound,
 )
 
 from verity.exchange.model_package_v1 import package as ml_package
+from verity.exchange.inference_agent_package import package as agent_package
 
 
 log = logging.getLogger("Local storage")
@@ -67,6 +72,7 @@ class LocalStorage(StorageBackend):
 
         self.models_folder = self.precipitates_folder / "models"
         self.datasets_folder = self.precipitates_folder / "datasets"
+        self.agents_folder = self.precipitates_folder / "inference_agents"
 
         # Leaf folders are deepest folders that we use
         self.leaf_folders = [
@@ -87,6 +93,7 @@ class LocalStorage(StorageBackend):
             self.analysis_reports_folder,
             self.models_folder,
             self.datasets_folder,
+            self.agents_folder,
         ]
 
         # Various path
@@ -126,6 +133,9 @@ class LocalStorage(StorageBackend):
 
     def _dataset_path(self, slug: str):
         return self.models_folder / f"{slug}.json"
+
+    def _agent_path(self, slug: str):
+        return self.agents_folder / f"{slug}.tar.gz"
 
     def method_run_report_path(self, run_uuid: str, method_kind: MethodKind):
         # FIXME: How to process Deployment/Measurement qualification?
@@ -359,6 +369,28 @@ class LocalStorage(StorageBackend):
         """Get list of available datasets in program"""
         raise NotImplementedError
 
+    def inference_agents(self):
+        """Get a list of available inference agents in program"""
+
+        def process_file(x: Path):
+            try:
+                return (x, agent_package.metadata_load(x))
+            except Exception as exc:
+                return (x, exc)
+
+        processed = list(map(process_file, self.agents_folder.glob("*.tar.gz")))
+
+        # Isolate found agents and errors
+        found_agents = list(
+            filter(lambda x: isinstance(x[1], InferenceAgentMetadata), processed)
+        )
+        found_errors = list(filter(lambda x: isinstance(x[0], Exception), processed))
+
+        return (
+            found_agents,
+            found_errors,
+        )
+
     def model_info_get(self, slug: str) -> MLModelMetadata:
         # Try to find model package file
         fpath = self._model_path(slug)
@@ -384,6 +416,38 @@ class LocalStorage(StorageBackend):
     def model_store(self, slug: str, pkg: MLModelPackage):
         fpath = self._model_path(slug)  # Get path for target archive
         sha256 = ml_package.package_archive_create(pkg, fpath)
+
+        log.info(f"Stored model {slug} to {fpath}")
+
+        return sha256
+
+    def inference_agent_info_get(self, slug: str):
+        # Try to fin agent package file
+        fpath = self._agent_path(slug)
+
+        if not fpath.is_file():
+            raise AgentNotFound(slug)
+
+        # Load json info from package
+        pkginfo = agent_package.metadata_load(fpath)
+
+        return pkginfo
+
+    def inference_agent_load(
+        self, slug: str, target_folder: Path
+    ) -> InferenceAgentPackageInfo:
+        fpath = self._agent_path(slug)
+
+        if not fpath.is_file():
+            raise AgentNotFound(slug)
+
+        pkginfo = agent_package.agent_load(fpath, target_folder)
+
+        return pkginfo
+
+    def inference_agent_store(self, slug: str, package: InferenceAgentPackageInfo):
+        fpath = self._agent_path(slug)
+        sha256 = agent_package.package_archive_create(package, fpath)
 
         log.info(f"Stored model {slug} to {fpath}")
 

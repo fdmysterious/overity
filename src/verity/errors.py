@@ -29,6 +29,11 @@ class ModelNotFound(Exception):
         super().__init__(f"Model '{slug}' not found")
 
 
+class AgentNotFound(Exception):
+    def __init__(self, slug: str):
+        super().__init__(f"Agent '{slug}' not found")
+
+
 class DuplicateSlugError(Exception):
     def __init__(self, path: Path, slug: str):
         super().__init__(f"Duplicate slug found in {path!s}: {slug!s}")
