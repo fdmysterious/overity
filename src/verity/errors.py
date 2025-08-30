@@ -87,6 +87,14 @@ class MalformedAgentPackage(Exception):
         self.what = what
 
 
+class MalformedDatasetPackage(Exception):
+    def __init__(self, archive_path: Path, what: str):
+        super().__init__(f"Malformed dataset package in {archive_path}: {what}")
+
+        self.archive_path = archive_path
+        self.what = what
+
+
 class ReportNotFound(Exception):
     def __init__(
         self, program_slug: str, report_type: MethodReportKind, identifier: str

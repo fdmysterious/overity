@@ -1,8 +1,9 @@
 """
-Inference agent packaging tools
+Dataset packaging tools
+=======================
 
 - Florian Dupeyron (florian.dupeyron@elsys-design.com)
-- July 2025
+- August 2025
 """
 
 import tempfile
@@ -12,12 +13,12 @@ import json
 
 from pathlib import Path
 
-from verity.model.inference_agent.metadata import InferenceAgentMetadata
-from verity.model.inference_agent.package import InferenceAgentPackageInfo
+from verity.model.dataset.metadata import DatasetMetadata
+from verity.model.dataset.package import DatasetPackageInfo
 
-from verity.exchange.inference_agent_package import metadata as agent_metadata
+from verity.exchange.dataset_package import metadata as dataset_metadata
 
-from verity.errors import MalformedAgentPackage
+from verity.errors import MalformedDatasetPackage
 
 
 ####################################################
@@ -25,7 +26,7 @@ from verity.errors import MalformedAgentPackage
 ####################################################
 
 
-# TODO # Merge with one used in ml model package
+# TODO # Merge with one used in ml model package and agent package
 def package_sha256(path: Path):
     path = Path(path)
 
@@ -35,18 +36,18 @@ def package_sha256(path: Path):
     return digest
 
 
-def package_archive_create(agent_data: InferenceAgentPackageInfo, output_path: Path):
+def package_archive_create(dataset_data: DatasetPackageInfo, output_path: Path):
     output_path = Path(output_path)
 
     with tempfile.NamedTemporaryFile(delete_on_close=False) as fhandle:
         # Encode metadata to JSON temporary file
         fhandle.close()  # File will be reopened by exchange encoding
-        agent_metadata.to_file(agent_data.metadata, fhandle.name)
+        dataset_metadata.to_file(dataset_data.metadata, fhandle.name)
 
         # Create output archive
         with tarfile.open(output_path, "w:gz") as archive:
-            archive.add(fhandle.name, arcname="agent-metadata.json")
-            archive.add(agent_data.agent_data_path, arcname="data")
+            archive.add(fhandle.name, arcname="dataset-metadata.json")
+            archive.add(dataset_data.dataset_data_path, arcname="data")
 
     # -> fhandle file is removed automatically when exiting the with... clause
     return package_sha256(output_path)
@@ -60,24 +61,23 @@ def package_archive_create(agent_data: InferenceAgentPackageInfo, output_path: P
 def _process_metadata(archive_path: Path, tf: tarfile.TarFile):
     """Utility function to load metadata from archive file"""
 
-    info_json = tf.getmember("agent-metadata.json")
+    info_json = tf.getmember("dataset-metadata.json")
 
     if info_json is None:
-        raise MalformedAgentPackage(archive_path, "No agent-metadata.json file")
+        raise MalformedDatasetPackage(archive_path, "No dataset-metadata.json file")
 
     with tf.extractfile(info_json) as fhandle:
         data = json.load(fhandle)
 
-    return agent_metadata.from_dict(data)
+    return dataset_metadata.from_dict(data)
 
 
-def _process_agent_data(archive_path: Path, tf: tarfile.TarFile, target_folder: Path):
-    """Utility function to extract agent data from package archive"""
-
+def _process_dataset_data(archive_path: Path, tf: tarfile.TarFile, target_folder: Path):
+    """Utility function to extract the dataset data from package archive"""
     data_folder = tf.getmember("data")
 
     if data_folder is None:
-        raise MalformedAgentPackage(archive_path, "No data/ folder in package")
+        raise MalformedDatasetPackage(archive_path, "No data/ folder in package")
 
     # List of files in data folder
     data_files = filter(lambda x: x.name.startswith("data/"), tf.getmembers())
@@ -91,8 +91,8 @@ def _process_agent_data(archive_path: Path, tf: tarfile.TarFile, target_folder: 
     )
 
 
-def metadata_load(archive_path: Path) -> InferenceAgentMetadata:
-    """Load only agent metadata from archive path"""
+def metadata_load(archive_path: Path) -> DatasetMetadata:
+    """Load dataset metadata from archive path"""
 
     archive_path = Path(archive_path)
 
@@ -102,14 +102,14 @@ def metadata_load(archive_path: Path) -> InferenceAgentMetadata:
     return meta
 
 
-def agent_load(archive_path: Path, target_folder: Path) -> InferenceAgentPackageInfo:
-    """Load agent metadata from archive, and extract its data to target folder"""
+def dataset_load(archive_path: Path, target_folder: Path) -> DatasetPackageInfo:
+    """Load dataset metadata from archive, and extract its data to target folder"""
 
     archive_path = Path(archive_path)
     target_folder = Path(target_folder)
 
     with tarfile.open(archive_path, "r:gz") as archive:
         meta = _process_metadata(archive_path, archive)
-        _process_agent_data(archive_path, archive, target_folder)
+        _process_dataset_data(archive_path, archive, target_folder)
 
     return meta
