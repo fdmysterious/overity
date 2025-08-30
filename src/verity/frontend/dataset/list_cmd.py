@@ -1,0 +1,62 @@
+"""
+List available datasets in a given programme
+============================================
+
+- Florian Dupeyron (florian.dupeyron@elsys-design.com)
+- August 2025
+"""
+
+import logging
+import traceback
+
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from verity.backend import program as b_program
+from verity.backend import dataset as b_dataset
+
+from verity.errors import ProgramNotFound
+from verity.frontend.utils import table as f_table
+
+log = logging.getLogger("frontend.dataset.list_cmd")
+
+
+def setup_parser(parser: ArgumentParser):
+    subcommand = parser.add_parser(
+        "list", aliases=["ls"], help="List available datasets"
+    )
+
+    return subcommand
+
+
+def run(args: Namespace):
+    cwd = Path.cwd()
+
+    try:
+        pdir = b_program.find_current(start_path=cwd)
+
+        datasets, errors = b_dataset.list_datasets(pdir)
+
+        # Displaying results
+        print("")
+        print(f"Found the following datasets in {pdir}:")
+        print("")
+
+        headers = ("Dataset slug", "Dataset name")
+        rows = (
+            (dataset_slug, dataset_info.name) for dataset_slug, dataset_info in datasets
+        )
+
+        print(f_table.table_format(headers, rows))
+
+        if errors:
+            print("")
+            print("While processing, the following errors has been found:")
+            print("")
+
+            for slug, err in errors:
+                print(f"- in {slug}: {err!s}")
+
+    except ProgramNotFound as exc:
+        log.exception(exc)
+        log.debug(traceback.format_exc())

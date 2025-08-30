@@ -11,10 +11,11 @@ from verity.frontend import program
 from verity.frontend import method
 from verity.frontend import model
 from verity.frontend import inference_agent
+from verity.frontend import dataset
 from verity.frontend import report
 
 
-CLI_GROUPS = {program, method, model, inference_agent, report}
+CLI_GROUPS = {program, method, model, inference_agent, report, dataset}
 
 
 def main():

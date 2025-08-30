@@ -18,6 +18,10 @@ from verity.model.report import MethodReportKind, MethodExecutionStatus
 from verity.model.inference_agent.metadata import InferenceAgentMetadata
 from verity.model.inference_agent.package import InferenceAgentPackageInfo
 
+from verity.model.dataset.metadata import DatasetMetadata
+
+# from verity.model.dataset.package import DatasetPackageInfo
+
 from verity.exchange import (
     execution_target_toml,
     program_toml,
@@ -37,6 +41,7 @@ from verity.errors import (
 
 from verity.exchange.model_package_v1 import package as ml_package
 from verity.exchange.inference_agent_package import package as agent_package
+from verity.exchange.dataset_package import package as dataset_package
 
 
 log = logging.getLogger("Local storage")
@@ -373,7 +378,24 @@ class LocalStorage(StorageBackend):
 
     def datasets(self):
         """Get list of available datasets in program"""
-        raise NotImplementedError
+
+        def process_file(x: Path):
+            slug = x.name.removesuffix(".tar.gz")
+
+            try:
+                return (slug, dataset_package.metadata_load(x))
+            except Exception as exc:
+                return (slug, exc)
+
+        processed = list(map(process_file, self.datasets_folder.glob("*.tar.gz")))
+
+        # Isolate found datasets and errors
+        found_datasets = list(
+            filter(lambda x: isinstance(x[1], DatasetMetadata), processed)
+        )
+        found_errors = list(filter(lambda x: isinstance(x[1], Exception), processed))
+
+        return found_datasets, found_errors
 
     def inference_agents(self):
         """Get a list of available inference agents in program
