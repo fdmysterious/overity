@@ -34,6 +34,11 @@ class AgentNotFound(Exception):
         super().__init__(f"Agent '{slug}' not found")
 
 
+class DatasetNotFound(Exception):
+    def __init__(self, slug: str):
+        super().__init__(f"Dataset '{slug}' not found")
+
+
 class DuplicateSlugError(Exception):
     def __init__(self, path: Path, slug: str):
         super().__init__(f"Duplicate slug found in {path!s}: {slug!s}")

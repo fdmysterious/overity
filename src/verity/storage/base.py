@@ -18,6 +18,9 @@ from verity.model.report import MethodReportKind
 from verity.model.inference_agent.metadata import InferenceAgentMetadata
 from verity.model.inference_agent.package import InferenceAgentPackageInfo
 
+from verity.model.dataset.metadata import DatasetMetadata
+from verity.model.dataset.package import DatasetPackageInfo
+
 from pathlib import Path
 
 
@@ -180,6 +183,18 @@ class StorageBackend(ABC):
     @abstractmethod
     def inference_agent_store(self, slug: str, package: InferenceAgentPackageInfo):
         """Store an inference agent package. Shall return the hash of stored agent"""
+
+    @abstractmethod
+    def dataset_info_get(self, slug: str) -> DatasetMetadata:
+        """Get info for a given dataset slug"""
+
+    @abstractmethod
+    def dataset_load(self, slug: str, target_folder: Path):
+        """Load a dataset package into the specified target folder"""
+
+    @abstractmethod
+    def dataset_store(self, slug: str, package: DatasetPackageInfo):
+        """Store a dataset package. Shall return the hash of stored dataset archive"""
 
     # -------------------------- Generate IDs
 

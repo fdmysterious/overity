@@ -19,8 +19,7 @@ from verity.model.inference_agent.metadata import InferenceAgentMetadata
 from verity.model.inference_agent.package import InferenceAgentPackageInfo
 
 from verity.model.dataset.metadata import DatasetMetadata
-
-# from verity.model.dataset.package import DatasetPackageInfo
+from verity.model.dataset.package import DatasetPackageInfo
 
 from verity.exchange import (
     execution_target_toml,
@@ -36,6 +35,7 @@ from verity.errors import (
     UnidentifiedMethodError,
     ModelNotFound,
     AgentNotFound,
+    DatasetNotFound,
     ReportNotFound,
 )
 
@@ -484,6 +484,36 @@ class LocalStorage(StorageBackend):
         sha256 = agent_package.package_archive_create(package, fpath)
 
         log.info(f"Stored model {slug} to {fpath}")
+
+        return sha256
+
+    def dataset_info_get(self, slug: str):
+        # Try to find dataset metadata file
+        fpath = self._dataset_path(slug)
+
+        if not fpath.is_file():
+            return DatasetNotFound(slug)
+
+        # Load json info from package
+        pkginfo = dataset_package.metadata_load(fpath)
+
+        return pkginfo
+
+    def dataset_load(self, slug: str, target_folder: Path) -> DatasetPackageInfo:
+        fpath = self._dataset_path(slug)
+
+        if not fpath.is_file():
+            raise DatasetNotFound(slug)
+
+        pkginfo = dataset_package.dataset_load(fpath, target_folder)
+
+        return pkginfo
+
+    def dataset_store(self, slug: str, package: DatasetPackageInfo):
+        fpath = self._dataset_path(slug)
+        sha256 = dataset_package.package_archive_create(package, fpath)
+
+        log.info(f"Store dataset {slug} to {fpath}")
 
         return sha256
 
