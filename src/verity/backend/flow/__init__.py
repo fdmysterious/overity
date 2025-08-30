@@ -278,7 +278,8 @@ def model_use(ctx, slug: str):
 
     pkginfo = ctx.storage.model_load(slug, tmpdir_path)
 
-    # Add traceability TODO
+    # Add traceability
+    # TODO add hash information
     # -> Create artifact key for model
     model_key = ArtifactKey(
         kind=ArtifactKind.Model,
@@ -367,6 +368,37 @@ def model_package(
         ctx.report.traceability_graph.metadata_store(
             model_key, "sha256", sha256.hexdigest()
         )
+
+
+@_api_guard
+def agent_use(ctx, slug: str):
+    log.info(f"Search for agent: {slug}")
+
+    tmpdir = tempfile.TemporaryDirectory()
+    tmpdir_path = Path(tmpdir.name).resolve()
+
+    pkginfo = ctx.storage.inference_agent_load(slug, tmpdir_path)
+
+    # Traceability information
+    # TODO add hash information
+    # -> Artifact key for agent
+    agent_key = ArtifactKey(
+        kind=ArtifactKind.InferenceAgent,
+        id=slug,
+    )
+
+    # -> Agent use for run
+    ctx.report.traceability_graph.add(
+        ArtifactLink(
+            a=ctx.report.run_key,
+            b=agent_key,
+            kind=ArtifactLinkKind.InferenceAgentUse,
+        )
+    )
+
+    ctx.tmpdirs.append(tmpdir)
+
+    return tmpdir_path / "data", pkginfo
 
 
 # TODO Add checks for duplicates and value constraints (when constructing?)

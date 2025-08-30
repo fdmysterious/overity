@@ -28,6 +28,7 @@ class ArtifactKind(Enum):
     # Precipitates
     Dataset = "dataset"
     Model = "model"
+    InferenceAgent = "inference_agent"
 
     # Shelf
     AnalysisReport = "analysis_report"
@@ -44,6 +45,9 @@ class ArtifactLinkKind(Enum):
 
     """Links a run to an used model"""
     ModelUse = "model_use"
+
+    """Links a run to an used inference_agent"""
+    InferenceAgentUse = "inference_agent_use"
 
     """Links a run to an used method"""
     MethodUse = "method_use"
