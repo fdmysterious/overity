@@ -8,7 +8,7 @@ build-backend   = "hatchling.build"
 ##################################################
 
 [project]
-name            = "verity"
+name            = "overity"
 dynamic         = ["version"]
 description     = ''
 readme          = "README.md"
@@ -47,10 +47,10 @@ dependencies = [
 #Source        = "https://XXXX"
 
 [project.scripts]
-verity = "verity.frontend:main"
+overity = "overity.frontend:main"
 
 [tool.hatch.version]
-path = "src/verity/__about__.py"
+path = "src/overity/__about__.py"
 
 
 ##################################################
@@ -60,15 +60,15 @@ path = "src/verity/__about__.py"
 ## ---------------------------- Coverage
 
 [tool.coverage.run]
-source_pkgs = ["verity", "tests"]
+source_pkgs = ["overity", "tests"]
 branch      = true
 parallel    = true
 omit        = [
-	"src/verity/__about__.py"
+	"src/overity/__about__.py"
 ]
 
 [tool.coverage.paths]
-verity = ["src/verity", "*/verity-python/src/verity"]
+overity = ["src/overity", "*/overity-python/src/overity"]
 tests  = ["tests", "*/test-template/tests"]
 
 [tool.coverage.report]
@@ -112,7 +112,7 @@ extra-dependencies = [
 ]
 
 [tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/verity tests}"
+check = "mypy --install-types --non-interactive {args:src/overity tests}"
 
 
 ## ---------------------------- Documentation generation environment
@@ -139,6 +139,7 @@ build = "mkdocs build"
 dependencies = [
 	"ruff",
 	"black",
+	"parsimonious", # For the header checker
 ]
 
 
