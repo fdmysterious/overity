@@ -1,5 +1,5 @@
 """
-VERITY python
+Overity.ai python
 =============
 
 **December 2024**
@@ -10,7 +10,7 @@ VERITY python
 > the terms of the LGPL 3.0 license. See the LICENSE file for more
 > information.
 
-VERITY-AI python toolkit
+Overity.ai python toolkit
 """
 
 # SPDX-FileCopyrightText: 2024-present Florian Dupeyron <florian.dupeyron@elsys-design.com>

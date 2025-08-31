@@ -1,9 +1,9 @@
-# VERITY python
+# Overity.ai python
 
 - Florian Dupeyron <florian.dupeyron@elsys-design.com>
 - December 2024
 
-VERITY-AI python toolkit
+Overity.ai python toolkit
 
 
 ## Development

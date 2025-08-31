@@ -1,5 +1,5 @@
 """
-VERITY-AI framework source
+Overity.ai framework source
 ==========================
 
 - Florian Dupeyron (florian.dupeyron@elsys-design.com)

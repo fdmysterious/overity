@@ -1,5 +1,5 @@
 """
-VERITY frontend commands to manipulate reports
+Overity.ai frontend commands to manipulate reports
 ==============================================
 
 **May 2025**

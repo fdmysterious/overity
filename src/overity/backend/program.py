@@ -1,5 +1,5 @@
 """
-Verity program backend features
+Overity.ai program backend features
 ===============================
 
 **March 2025**

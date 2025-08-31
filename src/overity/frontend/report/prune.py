@@ -1,5 +1,5 @@
 """
-VERITY command to prune unsucessful reports
+Overity.ai command to prune unsucessful reports
 ===========================================
 
 **May 2025**

@@ -1,5 +1,5 @@
 """
-Verity dataset backend features
+Overity.ai dataset backend features
 ===============================
 
 **August 2025**

@@ -1,5 +1,5 @@
 """
-VERITY model for reports
+Overity.ai model for reports
 ========================
 
 **April 2025**

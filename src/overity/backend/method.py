@@ -1,5 +1,5 @@
 """
-Verity methods backend features
+Overity.ai methods backend features
 ===============================
 
 **April 2025**

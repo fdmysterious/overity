@@ -1,5 +1,5 @@
 """
-VERITY Method flow management
+Overity.ai Method flow management
 =============================
 
 **April 2025**

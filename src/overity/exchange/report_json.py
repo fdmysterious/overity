@@ -1,5 +1,5 @@
 """
-VERITY report encoder/decoder
+Overity.ai report encoder/decoder
 =============================
 
 **April 2025**

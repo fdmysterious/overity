@@ -1,5 +1,5 @@
 """
-Verity commands for CLI
+Overity.ai commands for CLI
 =======================
 
 **February 2025**

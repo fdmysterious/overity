@@ -1,5 +1,5 @@
 """
-Verity CLI main entry point
+Overity.ai CLI main entry point
 ===========================
 
 **March 2025**

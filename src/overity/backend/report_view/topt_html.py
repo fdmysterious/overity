@@ -102,7 +102,7 @@ TEMPLATE_TXT = dedent(
             <main role="main" class="container">
                 <!-- Report header -->
                 <div class="report-header">
-                    <h1 class="mb-3">VERITY-AI: Training optimization report view</h1>
+                    <h1 class="mb-3">Overity.ai: Training optimization report view</h1>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>Report ID:</strong> {{report_id}}</p>

@@ -1,5 +1,5 @@
 """
-Verity inference agents backend features
+Overity.ai inference agents backend features
 ========================================
 
 **August 2025**

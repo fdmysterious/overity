@@ -1,5 +1,5 @@
 """
-VERITY-AI toolkit errors
+Overity.ai toolkit errors
 ========================
 
 **April 2025**

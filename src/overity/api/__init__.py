@@ -1,5 +1,5 @@
 """
-VERITY API for method writing
+Overity.ai API for method writing
 =============================
 
 **April 2025**
