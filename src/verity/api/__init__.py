@@ -6,6 +6,8 @@ VERITY API for method writing
 - April 2025
 """
 
+from __future__ import annotations
+
 import logging
 from pathlib import Path
 from contextlib import contextmanager
@@ -74,6 +76,16 @@ def model_package(slug: str, exchange_format: str, target: str = "agnostic"):
 
 def agent_use(slug: str):
     return flow.agent_use(_CTX, slug)
+
+
+def dataset_use(slug: str):
+    return flow.dataset_use(_CTX, slug)
+
+
+@contextmanager
+def dataset_package(slug: str, name: str, description: str | None = None):
+    with flow.dataset_package(_CTX, slug, name, description) as vpkg:
+        yield vpkg
 
 
 def metrics_save():

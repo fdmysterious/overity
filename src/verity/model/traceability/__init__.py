@@ -58,6 +58,9 @@ class ArtifactLinkKind(Enum):
     """Links a dataset to the dataset it is extracted from"""
     DatasetSubsetFrom = "dataset_subset_from"
 
+    """Links a run to a generated dataset"""
+    DatasetGeneratedBy = "dataset_generated_by"
+
     """Links a model to the run that generated it"""
     ModelGeneratedBy = "model_generated_by"
 

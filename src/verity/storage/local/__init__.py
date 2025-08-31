@@ -137,7 +137,7 @@ class LocalStorage(StorageBackend):
         return self.models_folder / f"{slug}.tar.gz"
 
     def _dataset_path(self, slug: str):
-        return self.models_folder / f"{slug}.json"
+        return self.datasets_folder / f"{slug}.tar.gz"
 
     def _agent_path(self, slug: str):
         return self.agents_folder / f"{slug}.tar.gz"

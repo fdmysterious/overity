@@ -33,6 +33,14 @@ from verity.model.ml_model.metadata import (
 )
 from verity.model.ml_model.package import MLModelPackage
 
+from verity.model.dataset.metadata import (
+    DatasetAuthor,
+    DatasetMaintainer,
+    DatasetMetadata,
+)
+
+from verity.model.dataset.package import DatasetPackageInfo
+
 from verity.model.traceability import (
     ArtifactKind,
     ArtifactKey,
@@ -305,11 +313,13 @@ def model_use(ctx, slug: str):
 def model_package(
     ctx: FlowCtx, slug: str, exchange_format: str, target: str = "agnostic"
 ):
+    # TODO # Add name argument as the display name is not the same as the slug
     with tempfile.TemporaryDirectory() as tmpdir:
         # Initialize package metadata
         meta = MLModelMetadata(
             name=slug,
             version="TODO",  # TODO: How to treat this?
+            # TODO # How to treat the list of authors?
             authors=[
                 MLModelAuthor(name=a.name, email=a.email, contribution=a.contribution)
                 for a in ctx.method_info.authors
@@ -325,6 +335,7 @@ def model_package(
         )
 
         # Initialize context information
+        # TODO # Use MLModelPackage instead of this class?
         pkginfo = ModelPackageInfo(
             model_metadata=meta,
             model_file_path=Path(tmpdir).resolve() / meta.model_file,
@@ -399,6 +410,94 @@ def agent_use(ctx, slug: str):
     ctx.tmpdirs.append(tmpdir)
 
     return tmpdir_path / "data", pkginfo
+
+
+@_api_guard
+def dataset_use(ctx, slug: str):
+    log.info(f"Search for dataset: {slug}")
+
+    tmpdir = tempfile.TemporaryDirectory()
+    tmpdir_path = Path(tmpdir.name).resolve()
+
+    pkginfo = ctx.storage.dataset_load(slug, tmpdir_path)
+
+    # Add traceability
+    # TODO add hash information
+    # -> Create artifact key for dataset
+    dataset_key = ArtifactKey(kind=ArtifactKind.Dataset, id=slug)
+
+    # -> Dataset use for run
+    ctx.report.traceability_graph.add(
+        ArtifactLink(
+            a=ctx.report.run_key,
+            b=dataset_key,
+            kind=ArtifactLinkKind.DatasetUse,
+        )
+    )
+
+    ctx.tmpdirs.append(tmpdir)
+
+    return tmpdir_path / "data", pkginfo
+
+
+@_api_guard
+@contextmanager
+def dataset_package(ctx, slug: str, name: str, description: str | None = None):
+
+    # TODO # Maybe not useful to create tmpdir for that thing here, as we may fetch data
+    # from internet or directly use an existing folder on the PC. To check
+
+    # TODO # Maybe better to just ask for the slug here, then implement some kind of builder pattern
+    # in the yielded object to set the metadata information?
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Initialize package metadata
+        meta = DatasetMetadata(
+            name=name,
+            # TODO # How to treat this?
+            authors=[
+                DatasetAuthor(name=a.name, email=a.email, contribution=a.contribution)
+                for a in ctx.method_info.authors
+            ],
+            # TODO # By default maintainers are the authors of the method
+            maintainers=[
+                DatasetMaintainer(name=a.name, email=a.email)
+                for a in ctx.method_info.authors
+            ],
+            description=description,
+        )
+
+        # Initialize context information
+        pkginfo = DatasetPackageInfo(
+            metadata=meta,
+            dataset_data_path=Path(tmpdir).resolve(),
+        )
+
+        yield pkginfo
+
+        # -> Now the user should have stored its file in the temp folder
+
+        # Create traceability information
+        dataset_key = ArtifactKey(
+            kind=ArtifactKind.Dataset,
+            id=slug,
+        )
+
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=dataset_key,
+                b=ctx.report.run_key,
+                kind=ArtifactLinkKind.DatasetGeneratedBy,
+            )
+        )
+
+        # Now that the package is created, we can create the archive
+        sha256 = ctx.storage.dataset_store(slug, pkginfo)
+
+        # Add artifact metadata
+        ctx.report.traceability_graph.metadata_store(
+            dataset_key, "sha256", sha256.hexdigest()
+        )
 
 
 # TODO Add checks for duplicates and value constraints (when constructing?)
