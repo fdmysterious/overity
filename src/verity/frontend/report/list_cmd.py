@@ -2,8 +2,13 @@
 List reports of a given kind for a program
 ==========================================
 
+**May 2025**
+
 - Florian Dupeyron (florian.dupeyron@elsys-design.com)
-- May 2025
+
+> This file is part of the Overity.ai project, and is licensed under
+> the terms of the LGPL 3.0 license. See the LICENSE file for more
+> information.
 """
 
 import logging

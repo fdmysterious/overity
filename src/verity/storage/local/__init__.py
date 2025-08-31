@@ -1,8 +1,13 @@
 """
-# Local storage implementation
+Local storage implementation
+============================
 
 - Florian Dupeyron (florian.dupeyron@elsys-design.com)
-- February 2025
+**February 2025**
+
+> This file is part of the Overity.ai project, and is licensed under
+> the terms of the LGPL 3.0 license. See the LICENSE file for more
+> information.
 """
 
 import logging
