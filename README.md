@@ -1,63 +1,50 @@
-# Overity.ai python
+<p align="center">
+    <img src="./docs/assets/overity-banner.png"  alt="Overity.ai" />
+</p>
 
-- Florian Dupeyron <florian.dupeyron@elsys-design.com>
-- December 2024
-
-Overity.ai python toolkit
-
-
-## Development
-
-### Tools
-
-The project uses the following tools:
-
-- hatch: project management, virtual environment, packaging tools;
-- pre-commit: quality assurance for repo focusing on developer experience (DX).
-
-You can install these tools (one time only) using pip:
-
-```
-pip install hatch pre-commit
-```
-
-The first time you checkout the repository, make sure to configure `pre-commit` properly:
-
-```
-pre-commit install
-```
-
-### Environments
-
-This project makes an extensive use of hatch's "environments" fulfilling various needs:
-
-#### `docs` environment
-
-This environment allow to build the project's documentation using `mkdocs`. To build the project documentation, simply run:
-
-```
-hatch run docs:build
-```
-
-Generated documentation shall be available in the `site` output folder.
+Overity.ai - MLOps oriented framework for trustworthy Edge-AI
+=============================================================
 
 
-#### `types` environment
+Overity.ai is a open-source MLOps oriented framework for optimization,
+qualification, and deployment of Edge-AI models in critical systems, focusing
+on traceability and trustworthy AI.
 
-This auxiliary environment uses `mypy` for type checking.
+It helps you organize training, optimization and validation methods, track
+and version your datasets and models with complete traceability graphs, as well
+as leveraging Hardware-In-The-Loop (HIL) testing to validate embedded use-cases.
 
-You can run the type checker using:
-
-```
-hatch run types:check
-```
+Whether it's for local development or complex deployments in complete MLOps environments,
+Overity.ai provides all the necessary tools to create the next ground-breaking Edge-AI
+Revoluuuuuuuution! :smile:
 
 
-#### `lint` environment
+Getting started
+---------------
 
-This environment contains the `ruff` linter as well as the `black` formatter. These shall be already run by `pre-commit` when comitting to the repository.
+To get started, please refer to the [Getting started](#) guide.
 
-Behind the scenes, the `pre-commit` hooks makes use of the following commands:
 
-- Lint the code using `ruff`: `hatch run lint:code-rules`
-- Format the code using `black`: `hatch run lint:code-format`
+Contributing
+------------
+
+If you want to contribute, please refer to the [contributing](CONTRIBUTING.md) guidelines.
+
+
+License
+-------
+
+This project is licensed under the terms of the TODO license. Please refer to the
+[LICENSE](./LICENSE) file for more information.
+
+
+Main authors
+------------
+
+- Florian Dupeyron (florian.dupeyron@elsys-design.com) : Project leader and creator
+
+
+Contact Us
+----------
+
+Please send an email at community@elsys-design.com
