@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="./docs/assets/overity-banner.png"  alt="Overity.ai" />
+    <img src="./docs/assets/img/overity-banner.png"  alt="Overity.ai" />
 </p>
 
 Overity.ai - MLOps oriented framework for trustworthy Edge-AI
