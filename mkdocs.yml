@@ -1,9 +1,9 @@
-site_name: "Overity.ai python"
-copyright: "2025 Advans Group"
+site_name: "Overity.ai"
+copyright: "2025, crafted with ♥ at <a href='https://www.advans-group.com'>Advans group</a>"
 
 theme:
   name: material
-  logo: assets/img/logo-advans-white_border.svg
+  logo: assets/img/overity-logo.svg
   palette:
     primary: black
     scheme: slate
