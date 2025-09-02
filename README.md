@@ -34,7 +34,7 @@ If you want to contribute, please refer to the [contributing](CONTRIBUTING.md) g
 License
 -------
 
-This project is licensed under the terms of the TODO license. Please refer to the
+This project is licensed under the terms of the terms of the Apache 2.0 license. Please refer to the
 [LICENSE](./LICENSE) file for more information.
 
 

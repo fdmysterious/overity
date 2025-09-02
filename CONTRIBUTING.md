@@ -89,7 +89,7 @@ Please use the following header format for source files:
 - [Your Name] ([your email])
 
 > This file is part of the Overity.ai project, and is licensed under
-> the terms of the LGPL 3.0 license. See the LICENSE file for more
+> the terms of the Apache 2.0 license. See the LICENSE file for more
 > information.
 
 Optional file description and documentation
