@@ -1,6 +1,6 @@
 """
 Overity.ai methods backend features
-===============================
+===================================
 
 **April 2025**
 
@@ -20,7 +20,7 @@ from overity.storage.local import LocalStorage
 log = logging.getLogger("backend.methods")
 
 
-def list_topt_methods(program_path: Path):
+def list_topt_methods(program_path: Path | str):
     """List the current available training/optimization methods from the given program path"""
 
     program_path = Path(program_path).resolve()

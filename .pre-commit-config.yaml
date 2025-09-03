@@ -10,3 +10,8 @@ repos:
         language: system
         name: "Run black formatter"
         entry: hatch run lint:code-format
+
+      - id: check-headers
+        language: system
+        name: "Check source headers"
+        entry: hatch run lint:code-headers

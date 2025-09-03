@@ -25,7 +25,7 @@ def table_format(headers, rows):
 
     nlong_str = [len(h) for h in headers]
     for i, row in enumerate(rows):
-        if len(row) < ncols:
+        if len(row) != ncols:
             raise ValueError(f"Invalid number of columns for row: {row}")
 
         formatted_row = [None] * len(row)

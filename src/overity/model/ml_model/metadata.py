@@ -1,5 +1,6 @@
 """
-# ML Model metadata model
+ML Model metadata model
+=======================
 
 **December 2024**
 

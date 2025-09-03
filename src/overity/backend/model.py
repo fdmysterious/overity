@@ -1,6 +1,6 @@
 """
 Overity.ai model backend features
-=============================
+=================================
 
 **April 2025**
 
@@ -20,7 +20,7 @@ from overity.storage.local import LocalStorage
 log = logging.getLogger("backend.model")
 
 
-def list_models(program_path: Path):
+def list_models(program_path: Path | str):
     """List the current available models"""
 
     program_path = Path(program_path).resolve()
