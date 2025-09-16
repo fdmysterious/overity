@@ -40,11 +40,10 @@ dependencies = [
 ]
 
 
-# TODO #
-#[project.urls]
-#Documentation = "https://XXXX"
-#Issues        = "https://XXXX"
-#Source        = "https://XXXX"
+[project.urls]
+Documentation = "https://overity.ai"
+Issues        = "https://github.com/fdmysterious/overity/issues"
+Source        = "https://github.com/fdmysterious/overity"
 
 [project.scripts]
 overity = "overity.frontend:main"
