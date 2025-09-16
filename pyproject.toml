@@ -10,7 +10,7 @@ build-backend   = "hatchling.build"
 [project]
 name            = "overity"
 dynamic         = ["version"]
-description     = ''
+description     = 'MLOps oriented framework for trustworthy Edge-AI'
 readme          = "README.md"
 requires-python = ">=3.8"
 license         = "Apache-2.0"
