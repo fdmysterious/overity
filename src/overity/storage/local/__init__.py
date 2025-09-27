@@ -17,6 +17,7 @@ import traceback
 from pathlib import Path
 
 from overity.model.general_info.method import MethodKind, MethodInfo
+from overity.model.general_info.bench import BenchInstanciationMetadata
 from overity.model.ml_model.metadata import MLModelMetadata
 from overity.model.ml_model.package import MLModelPackage
 from overity.model.report import MethodReportKind, MethodExecutionStatus
@@ -178,7 +179,9 @@ class LocalStorage(StorageBackend):
         return program_toml.from_file(self.program_info_path)
 
     def execution_targets(self):
-        """Get list of execution targets registered in program as a generator"""
+        """Get list of execution targets registered in program as a generator
+        TODO: Return fonud_targets, found_errors as in other methods
+        """
 
         log.debug(f"Get list of execution targets from {self.execution_targets_folder}")
 
@@ -197,7 +200,9 @@ class LocalStorage(StorageBackend):
         return map(process_file, self.execution_targets_folder.glob("**/*.toml"))
 
     def capabilities(self):
-        """Get list of defined capabilities in current program as a generator"""
+        """Get list of defined capabilities in current program as a generator
+        TODO: Return found_capabilities, found_errors as in other methods
+        """
 
         log.debug(f"Get list of capabilities from {self.capabilities_folder}")
 
@@ -222,15 +227,35 @@ class LocalStorage(StorageBackend):
         def process_file(path):
             log.debug(f"Check file {path}")
 
+            slug = path.name.removesuffix(".toml")
+
             try:
-                return bench_toml.from_file(path)
+                return (
+                    slug,
+                    bench_toml.from_file(path),
+                )
             except Exception as exc:
                 log.debug(f"Error checking {path}: {exc!s}")
                 log.debug(traceback.format_exc())
 
-                return (path, exc)
+                return (
+                    slug,
+                    exc,
+                )
 
-        return map(process_file, self.benches_folder.glob("**/*.toml"))
+        processed = list(map(process_file, self.benches_folder.glob("**/*.toml")))
+
+        # Isolate found benches and errors
+        found_benches = list(
+            filter(lambda x: isinstance(x[1], BenchInstanciationMetadata), processed)
+        )
+
+        found_errors = list(filter(lambda x: isinstance(x[1], Exception), processed))
+
+        return (
+            found_benches,
+            found_errors,
+        )
 
     # -------------------------- Ingredients
 
