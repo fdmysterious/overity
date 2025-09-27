@@ -32,6 +32,7 @@ from overity.exchange import (
     program_toml,
     report_json,
     capability_toml,
+    bench_toml,
 )
 from overity.storage.base import StorageBackend
 from overity.exchange.method_common import file_ipynb, file_py
@@ -65,6 +66,7 @@ class LocalStorage(StorageBackend):
 
         self.execution_targets_folder = self.catalyst_folder / "execution_targets"
         self.capabilities_folder = self.catalyst_folder / "capabilities"
+        self.benches_folder = self.catalyst_folder / "benches"
 
         self.training_optimization_folder = (
             self.ingredients_folder / "training_optimization"
@@ -89,6 +91,7 @@ class LocalStorage(StorageBackend):
         self.leaf_folders = [
             self.execution_targets_folder,
             self.capabilities_folder,
+            self.benches_folder,
             self.training_optimization_folder,
             self.measurement_qualification_folder,
             self.deployment_folder,
@@ -126,6 +129,9 @@ class LocalStorage(StorageBackend):
 
     def _capability_path(self, slug: str):
         return self.capabilities_folder / f"{slug}.toml"
+
+    def _bench_path(self, slug: str):
+        return self.benches_folder / f"{slug}.toml"
 
     def _experiment_run_report_path(self, run_uuid: str):
         return self.experiment_runs_folder / f"{run_uuid}.json"
@@ -204,7 +210,27 @@ class LocalStorage(StorageBackend):
                 log.debug(f"Error checking {path}: {exc!s}")
                 log.debug(traceback.format_exc())
 
+                return (path, exc)
+
         return map(process_file, self.capabilities_folder.glob("**/*.toml"))
+
+    def benches(self):
+        """Get a list of defined bench instanciations in current program as a generator"""
+
+        log.debug(f"Get list of benches from {self.benches_folder}")
+
+        def process_file(path):
+            log.debug(f"Check file {path}")
+
+            try:
+                return bench_toml.from_file(path)
+            except Exception as exc:
+                log.debug(f"Error checking {path}: {exc!s}")
+                log.debug(traceback.format_exc())
+
+                return (path, exc)
+
+        return map(process_file, self.benches_folder.glob("**/*.toml"))
 
     # -------------------------- Ingredients
 

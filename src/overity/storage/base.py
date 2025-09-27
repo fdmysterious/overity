@@ -46,6 +46,10 @@ class StorageBackend(ABC):
     def capabilities(self):
         """Get list of specific capabilities defined in program"""
 
+    @abstractmethod
+    def benches(self):
+        """Get list of bench definitions"""
+
     # -------------------------- Ingredients
 
     @abstractmethod
