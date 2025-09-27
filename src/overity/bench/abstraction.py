@@ -15,24 +15,59 @@ TODO: Parameters for base methods
 """
 
 from abc import ABC, abstractmethod
-from overity.model.general_info.bench import BenchAbstractionMetadata
 
 
 class BenchAbstraction(ABC):
-    def __init__():
+    """
+    Base class to define a bench abstraction
+    """
+
+    def __init__(self, settings_dataclass, settings_values):
+        settings = settings_dataclass(**settings_values)
+
+        self.__configure__(settings)
+
+    @property
+    def capabilities(self) -> frozenset[str]:
+        """Return the set of available capabilities"""
+        return frozenset({})
+
+    @property
+    def compatible_tags(self) -> frozenset[str]:
+        """Return the list of compatible execution targets tags"""
+        return frozenset({})
+
+    @property
+    def compatible_targets(self) -> frozenset[str]:
+        """Return the list of compatible execution targets slugs"""
+        return frozenset({})
+
+    @abstractmethod
+    def __configure__(self, settings):
+        """This method is implemented in children classes to configure the bench, given input settings"""
         pass
 
     @abstractmethod
-    def metadata(self) -> BenchAbstractionMetadata:
-        """Called to get bench abstraction metadata information"""
+    def bench_start(self):
+        """Called to start bench (open connections, etc.)"""
+        pass
+
+    @abstractmethod
+    def bench_cleanup(self):
+        """Called to stop bench (close connections, remove temp files, etc.)"""
+        pass
 
     @abstractmethod
     def sanity_check(self):
         """Called to check that bench is working OK"""
 
     @abstractmethod
-    def initial_state(self):
+    def state_initial(self):
         """Called to set bench to initial status"""
+
+    @abstractmethod
+    def state_panic(self):
+        """Called for emergency bench stop"""
 
     @abstractmethod
     def agent_deploy(self):
@@ -50,6 +85,5 @@ class BenchAbstraction(ABC):
     def agent_inference(self):
         """Called to run an inference on the inference agent"""
 
-    @abstractmethod
-    def panic(self):
-        """Called to stop bench in urgence"""
+    def has_capability(self, capability_name: str) -> bool:
+        return capability_name in self.capabilities

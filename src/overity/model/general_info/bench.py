@@ -15,7 +15,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from overity.model.general_info.capability import Capability
+
+@dataclass(eq=True, frozen=True)
+class BenchAbstractionAuthor:
+    """Describes an author for a bench abstraction"""
+
+    """Name of the author"""
+    name: str
+
+    """Email of the author"""
+    email: str
+
+    """Optional contribution details"""
+    contribution: str | None = None
 
 
 @dataclass
@@ -28,14 +40,11 @@ class BenchAbstractionMetadata:
     """Display name"""
     display_name: str
 
-    """Bench capabilities list"""
-    capabilities: frozenset[Capability]
+    """Authors"""
+    authors: list[BenchAbstractionAuthor]
 
-    """List of compatible tags"""
-    compatible_tags: frozenset[str]
-
-    """List of compatible execution targets"""
-    compatible_targets: frozenset[str]
+    """Optional metadata fields"""
+    metadata: dict[str, str]
 
     """Optional description"""
     description: str | None = None
