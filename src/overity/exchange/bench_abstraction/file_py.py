@@ -14,6 +14,8 @@ Parser for bench abstraction definition
 from __future__ import annotations
 
 import ast
+import sys
+import importlib.util
 
 from pathlib import Path
 from overity.exchange.bench_abstraction import description_md
@@ -50,6 +52,8 @@ def _read_docstring(path: Path):
 
 
 def from_file(path: Path):
+    """Import bench abstraction metadata from file"""
+
     docstr = _read_docstring(path)
     slug = _extract_slug(path)
 
@@ -57,3 +61,33 @@ def from_file(path: Path):
         return description_md.from_md_desc(x=docstr, slug=slug, file_path=path)
     else:
         raise EmptyMethodDescription(file_path=path)  # TODO # Use another exception?
+
+
+def import_definitions(path: Path):
+    """Import bench abstraction settings and definition from python file"""
+
+    path = Path(path)
+
+    module_name = "bench_abstraction." + path.name.removesuffix(".py")
+
+    # Load module from file path
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if not spec or not spec.loader:
+        raise ImportError(f"Cannot load bench abstraction from {path}")
+
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+
+    # Get constructors
+    if not hasattr(module, "BenchSettings") or not hasattr(module, "BenchDefinition"):
+        raise AttributeError(
+            "Bench abstraction must define a BenchSettings dataclass and BenchDefinition class"
+        )
+
+    BenchSettings = getattr(module, "BenchSettings")
+    BenchDefinition = getattr(module, "BenchDefinition")
+
+    # TODO # Maybe add some conformity checks?
+
+    return BenchSettings, BenchDefinition

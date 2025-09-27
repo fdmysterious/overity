@@ -22,9 +22,8 @@ class BenchAbstraction(ABC):
     Base class to define a bench abstraction
     """
 
-    def __init__(self, settings_dataclass, settings_values):
-        settings = settings_dataclass(**settings_values)
-
+    def __init__(self, settings: any):
+        # TODO: Type annotation for bench settings?
         self.__configure__(settings)
 
     @property

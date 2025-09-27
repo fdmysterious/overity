@@ -61,8 +61,8 @@ class StorageBackend(ABC):
         """Get list of measurement and qualification methods registered in program"""
 
     @abstractmethod
-    def deployment_methods(self):
-        """Get list of deployment methods registered in program"""
+    def bench_abstractions(self):
+        """Get list of bench abstractions registered in program"""
 
     @abstractmethod
     def analysis_methods(self):

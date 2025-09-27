@@ -116,3 +116,35 @@ class ReportNotFound(Exception):
         self.program_slug = program_slug
         self.report_type = report_type
         self.identifier = identifier
+
+
+class InvalidBenchSettingsError(Exception):
+    def __init__(
+        self,
+        bench_slug: str,
+        bench_settings: dict[str, str | int | float | bool],
+        exc: Exception,
+    ):
+        super().__init__(
+            f"Failed to parse bench settings for bench {bench_slug} ({type(exc)}): {exc!s}"
+        )
+
+        self.bench_slug = bench_slug
+        self.bench_settings = bench_settings
+        self.exc = exc
+
+
+class BenchInstanciationError(Exception):
+    def __init__(
+        self,
+        bench_slug: str,
+        bench_settings: dict[str, str | int | float | bool],
+        exc: Exception,
+    ):
+        super().__init__(
+            f"Failed to instanciate bench {bench_slug} ({type(exc)}): {exc!s}"
+        )
+
+        self.bench_slug = bench_slug
+        self.bench_settings = bench_settings
+        self.exc = exc

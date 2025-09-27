@@ -9,6 +9,8 @@ Local storage implementation
 > This file is part of the Overity.ai project, and is licensed under
 > the terms of the Apache 2.0 license. See the LICENSE file for more
 > information.
+
+TODO: fix inconsistencies with slug extraction
 """
 
 import logging
@@ -17,7 +19,10 @@ import traceback
 from pathlib import Path
 
 from overity.model.general_info.method import MethodKind, MethodInfo
-from overity.model.general_info.bench import BenchInstanciationMetadata
+from overity.model.general_info.bench import (
+    BenchAbstractionMetadata,
+    BenchInstanciationMetadata,
+)
 from overity.model.ml_model.metadata import MLModelMetadata
 from overity.model.ml_model.package import MLModelPackage
 from overity.model.report import MethodReportKind, MethodExecutionStatus
@@ -28,6 +33,7 @@ from overity.model.inference_agent.package import InferenceAgentPackageInfo
 from overity.model.dataset.metadata import DatasetMetadata
 from overity.model.dataset.package import DatasetPackageInfo
 
+
 from overity.exchange import (
     execution_target_toml,
     program_toml,
@@ -35,6 +41,9 @@ from overity.exchange import (
     capability_toml,
     bench_toml,
 )
+
+from overity.exchange.bench_abstraction import file_py as bench_abstraction_py
+
 from overity.storage.base import StorageBackend
 from overity.exchange.method_common import file_ipynb, file_py
 
@@ -75,7 +84,7 @@ class LocalStorage(StorageBackend):
         self.measurement_qualification_folder = (
             self.ingredients_folder / "measurement_qualification"
         )
-        self.deployment_folder = self.ingredients_folder / "deployment"
+        self.bench_abstractions_folder = self.ingredients_folder / "bench_abstraction"
         self.analysis_folder = self.ingredients_folder / "analysis"
         self.experiments_folder = self.ingredients_folder / "experiments"
 
@@ -95,7 +104,7 @@ class LocalStorage(StorageBackend):
             self.benches_folder,
             self.training_optimization_folder,
             self.measurement_qualification_folder,
-            self.deployment_folder,
+            self.bench_abstractions_folder,
             self.analysis_folder,
             self.experiments_folder,
             self.experiment_runs_folder,
@@ -133,6 +142,9 @@ class LocalStorage(StorageBackend):
 
     def _bench_path(self, slug: str):
         return self.benches_folder / f"{slug}.toml"
+
+    def _bench_abstraction_path(self, slug: str):
+        return self.bench_abstractions_folder / f"{slug}.py"
 
     def _experiment_run_report_path(self, run_uuid: str):
         return self.experiment_runs_folder / f"{run_uuid}.json"
@@ -305,9 +317,31 @@ class LocalStorage(StorageBackend):
         """Get list of measurement and qualification methods registered in program"""
         raise NotImplementedError
 
-    def deployment_methods(self):
-        """Get list of deployment methods registered in program"""
-        raise NotImplementedError
+    def bench_abstractions(self):
+        """Get list of bench abstractions registered in program"""
+
+        def process_file(x: Path):
+            try:
+                infos = bench_abstraction_py.from_file(x)
+                return (
+                    infos.slug,
+                    infos,
+                )
+            except Exception as exc:
+                slug = bench_abstraction_py._extract_slug(x)
+                return (
+                    slug,
+                    exc,
+                )
+
+        processed = list(map(process_file, self.bench_abstractions_folder.glob("*.py")))
+
+        found_abstractions = list(
+            filter(lambda x: isinstance(x[1], BenchAbstractionMetadata), processed)
+        )
+        found_errors = list(filter(lambda x: isinstance(x[1], Exception), processed))
+
+        return found_abstractions, found_errors
 
     def analysis_methods(self):
         """Get list of analysis methods registered in program"""
@@ -333,6 +367,33 @@ class LocalStorage(StorageBackend):
 
     def identify_method_slug(self, pp: Path):
         return pp.stem
+
+    def bench_load_infos(self, slug: str):
+        """Import a bench instanciation's information"""
+
+        bench_path = self._bench_path(slug)
+        metadata = bench_toml.from_file(bench_path)
+
+        return metadata
+
+    def bench_abstraction_import_infos(self, slug: str):
+        """Import a bench abstraction's metadata information given its slug"""
+
+        abstraction_path = self._bench_abstraction_path(slug)
+        metadata = bench_abstraction_py.from_file(abstraction_path)
+
+        return metadata
+
+    def bench_abstraction_import_definitions(self, slug: str):
+        """Import a bench abstraction's definitions given its slug"""
+        # TODO # Is this kind of method future-proof against other kinds of storages?
+
+        abstraction_path = self._bench_abstraction_path(slug)
+        BenchSettings, BenchDefinition = bench_abstraction_py.import_definitions(
+            abstraction_path
+        )
+
+        return BenchSettings, BenchDefinition
 
     # -------------------------- Shelf
 
