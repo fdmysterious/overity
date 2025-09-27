@@ -54,5 +54,11 @@ class BenchInstanciationMetadata:
     """Display name"""
     display_name: str
 
-    """Associated bench abstraction metadata"""
-    bench_abstraction: BenchAbstractionMetadata
+    """Associated bench abstraction slug"""
+    abstraction_slug: str
+
+    """Used parameter values for bench instanciation"""
+    settings: dict[str, str | bool | float | int] | None = None
+
+    """Optional bench description"""
+    description: str | None = None
