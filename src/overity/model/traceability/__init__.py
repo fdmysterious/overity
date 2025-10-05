@@ -23,12 +23,14 @@ class ArtifactKind(Enum):
 
     # Catalyst
     ExecutionTargetInfo = "execution_target_info"
+    BenchInstanciation = "bench_instanciation"
 
     # Ingredients
     AnalysisMethod = "analysis_method"
     DeploymentMethod = "deployment_method"
     MeasurementQualificationMethod = "measurement_qualification_method"
     TrainingOptimizationMethod = "training_optimization_method"
+    BenchAbstraction = "bench_abstraction"
 
     # Precipitates
     Dataset = "dataset"
@@ -43,6 +45,7 @@ class ArtifactKind(Enum):
 
     # Runs
     OptimizationRun = "optimization_run"
+    ExecutionRun = "execution_run"
 
 
 class ArtifactLinkKind(Enum):
@@ -71,6 +74,12 @@ class ArtifactLinkKind(Enum):
 
     """Links a report to its corresponding run"""
     ReportFor = "report_for"
+
+    """Links a bench instanciation to a bench abstraction"""
+    InstanciateBench = "instanciate_bench"
+
+    """Links a run to a bench"""
+    BenchUse = "bench_use"
 
 
 @dataclass(frozen=True, eq=True)

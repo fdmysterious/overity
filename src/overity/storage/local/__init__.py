@@ -449,7 +449,14 @@ class LocalStorage(StorageBackend):
         return report_path, report_json.from_file(report_path)
 
     def execution_report_load(self, identifier: str):
-        raise NotImplementedError
+        report_path = self._execution_report_path(identifier)
+
+        if not report_path.is_file():
+            raise ReportNotFound(
+                self.base_folder, MethodReportKind.Execution, identifier
+            )
+
+        return report_path, report_json.from_file(report_path)
 
     def analysis_report_load(self, identifier: str):
         raise NotImplementedError

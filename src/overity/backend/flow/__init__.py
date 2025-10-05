@@ -26,6 +26,8 @@ from datetime import datetime as dt
 from dataclasses import dataclass
 
 from overity.backend import program
+from overity.backend import bench as b_bench
+
 from overity.storage.local import LocalStorage
 
 from overity.model.general_info.method import MethodKind
@@ -167,6 +169,7 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
 
     # Initialize run traceability information
     # TODO: For other types
+    # TODO: This is ugly.
     if ctx.method_kind == MethodKind.TrainingOptimization:
         ctx.report.method_key = ArtifactKey(
             kind=ArtifactKind.TrainingOptimizationMethod, id=ctx.method_slug
@@ -176,6 +179,35 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
         )
         ctx.report.run_key = ArtifactKey(
             kind=ArtifactKind.OptimizationRun, id=ctx.report.uuid
+        )
+
+        # Add link between run and report
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.report_key,
+                b=ctx.report.run_key,
+                kind=ArtifactLinkKind.ReportFor,
+            )
+        )
+
+        # Add link between run and method
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.run_key,
+                b=ctx.report.method_key,
+                kind=ArtifactLinkKind.MethodUse,
+            )
+        )
+
+    elif ctx.method_kind == MethodKind.MeasurementQualification:
+        ctx.report.method_key = ArtifactKey(
+            kind=ArtifactKind.MeasurementQualificationMethod, id=ctx.method_slug
+        )
+        ctx.report.report_key = ArtifactKey(
+            kind=ArtifactKind.ExecutionReport, id=ctx.report.uuid
+        )
+        ctx.report.run_key = ArtifactKey(
+            kind=ArtifactKind.ExecutionRun, id=ctx.report.uuid
         )
 
         # Add link between run and report
@@ -215,6 +247,48 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
 
     # Add exit handler to save report file
     atexit.register(exit_handler, ctx)
+
+    # For DMQ Method, extract bench information
+    if ctx.method_kind == MethodKind.MeasurementQualification:
+        bench_slug = (
+            b_env.bench()
+        )  # Get bench slug from OVERITY_BENCH env var, raise exception if not defined
+        log.info(
+            f"Running a measurement/qualification method. Load bench information for {bench_slug}"
+        )
+
+        ctx.bench_infos = b_bench.load_bench_infos(ctx.pdir, bench_slug)
+        ctx.bench_abstraction = b_bench.load_bench_abstraction_infos(
+            ctx.pdir, ctx.bench_infos.abstraction_slug
+        )
+        ctx.bench_instance = b_bench.instanciate(ctx.pdir, bench_slug)
+
+        # -> Traceability information
+        k_bench = ArtifactKey(kind=ArtifactKind.BenchInstanciation, id=bench_slug)
+        k_abstr = ArtifactKey(
+            kind=ArtifactKind.BenchAbstraction, id=ctx.bench_infos.abstraction_slug
+        )
+
+        ctx.report.traceability_graph.add(
+            ArtifactLink(a=k_bench, b=k_abstr, kind=ArtifactLinkKind.InstanciateBench)
+        )
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.run_key, b=k_bench, kind=ArtifactLinkKind.BenchUse
+            )
+        )
+
+        # -> Log some infos
+        log.info("Bench information:")
+        log.info(
+            f" - Name:               {ctx.bench_infos.display_name} ({bench_slug})"
+        )
+        log.info(
+            f" - Instanciates:       {ctx.bench_abstraction.display_name} ({ctx.bench_abstraction.slug})"
+        )
+        log.info(f" - Compatible tags:    {ctx.bench_instance.compatible_tags}")
+        log.info(f" - Compatible targets: {ctx.bench_instance.compatible_targets}")
+        log.info(f" - Capabilities:       {ctx.bench_instance.capabilities}")
 
     # Init is done!
     ctx.init_ok = True

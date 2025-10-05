@@ -68,6 +68,10 @@ class BenchAbstraction(ABC):
     def state_panic(self):
         """Called for emergency bench stop"""
 
+    # @abstractmethod
+    # def agent_infos(self):
+    #    """Get infos of used inference agent"""
+
     @abstractmethod
     def agent_deploy(self):
         """Called to deploy inference agent"""

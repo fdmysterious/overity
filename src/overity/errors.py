@@ -148,3 +148,10 @@ class BenchInstanciationError(Exception):
         self.bench_slug = bench_slug
         self.bench_settings = bench_settings
         self.exc = exc
+
+
+class NoBenchDefinedError(Exception):
+    def __init__(self):
+        super().__init__(
+            "No bench defined to execute the measure/qualification method. Please set the OVERITY_BENCH variable to an existing bench in programme"
+        )

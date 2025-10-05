@@ -11,6 +11,8 @@ Utilities to dump environment information
 > information.
 """
 
+from overity.errors import NoBenchDefinedError
+
 
 def platform_info():
     import platform
@@ -36,3 +38,15 @@ def installed_packages():
     )
 
     return installed_packages_list
+
+
+def bench() -> str:
+    """Get used bench name through environment variable"""
+
+    import os
+
+    value = os.getenv("OVERITY_BENCH")
+    if value is None:
+        raise NoBenchDefinedError()
+
+    return value

@@ -47,6 +47,27 @@ def list_bench_abstractions(program_path: Path):
     return abstractions, errors
 
 
+def load_bench_infos(program_path: Path, bench_slug: str):
+    # Load program information
+    program_path = Path(program_path)
+    st = LocalStorage(program_path)
+
+    bench = st.bench_load_infos(bench_slug)
+
+    return bench
+
+
+def load_bench_abstraction_infos(program_path: Path, slug: str):
+    """Load bench abstraction information given its slug in specified programme"""
+    # Load program information
+    program_path = Path(program_path)
+    st = LocalStorage(program_path)
+
+    bench_abstraction = st.bench_abstraction_import_infos(slug)
+
+    return bench_abstraction
+
+
 def instanciate(program_path: Path, bench_slug: str):
     # Load program information
     program_path = Path(program_path)
