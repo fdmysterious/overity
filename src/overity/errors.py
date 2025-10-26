@@ -64,6 +64,13 @@ class UnknownMethodError(Exception):
         super().__init__("Can't find called method file path")
 
 
+class NotInDMQError(Exception):
+    def __init__(self):
+        super().__init__(
+            "Current running method is not a measurement/qualification method"
+        )
+
+
 class UninitAPIError(Exception):
     def __init__(self):
         super().__init__("Please initialize API with overity.api.init() before using")

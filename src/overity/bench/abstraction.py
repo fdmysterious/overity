@@ -14,7 +14,11 @@ TODO: Parameters for base methods
 
 """
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
+
+from overity.model.ml_model.metadata import MLModelMetadata
+from pathlib import Path
 
 
 class BenchAbstraction(ABC):
@@ -73,7 +77,7 @@ class BenchAbstraction(ABC):
     #    """Get infos of used inference agent"""
 
     @abstractmethod
-    def agent_deploy(self):
+    def agent_deploy(self, model_file: Path, model_data: MLModelMetadata):
         """Called to deploy inference agent"""
 
     @abstractmethod
@@ -85,7 +89,7 @@ class BenchAbstraction(ABC):
         """Called to test communication channel between bench and agent"""
 
     @abstractmethod
-    def agent_inference(self):
+    def agent_inference(self, vectors: dict[str, any]):
         """Called to run an inference on the inference agent"""
 
     def has_capability(self, capability_name: str) -> bool:

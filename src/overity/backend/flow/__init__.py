@@ -64,7 +64,7 @@ from overity.model.report.metrics import (
 
 from overity.exchange import report_json
 from overity.exchange.method_common import file_py, file_ipynb
-from overity.errors import UnidentifiedMethodError, UninitAPIError
+from overity.errors import UnidentifiedMethodError, UninitAPIError, NotInDMQError
 
 from overity.backend.flow.ctx import FlowCtx, RunMode
 from overity.backend.flow import environment as b_env
@@ -119,6 +119,16 @@ def _api_guard(fkt):
     def call(ctx, *args, **kwargs):
         if not ctx.init_ok:
             raise UninitAPIError()
+        else:
+            return fkt(ctx, *args, **kwargs)
+
+    return call
+
+
+def _dmq_guard(fkt):
+    def call(ctx, *args, **kwargs):
+        if not ctx.method_kind == MethodKind.MeasurementQualification:
+            raise NotInDMQError()
         else:
             return fkt(ctx, *args, **kwargs)
 
@@ -612,3 +622,18 @@ class MetricSaver:
 @_api_guard
 def metrics_save(ctx: FlowCtx):
     return MetricSaver(ctx)
+
+
+####################################################
+# Bench API
+####################################################
+
+# TODO # Design: Just allow to get the instance, or create a specific
+# API call for each bench method? How to manage specific API calls
+# Given by additional capabilities?
+
+
+@_api_guard
+@_dmq_guard
+def bench_instance(ctx):
+    return ctx.bench_instance

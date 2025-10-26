@@ -426,7 +426,26 @@ class LocalStorage(StorageBackend):
 
     def execution_reports(self, include_all: bool = False):
         """Get list of execution reports in program"""
-        raise NotImplementedError
+
+        def check_report(pp: Path):
+            try:
+                report_info = report_json.from_file(self._execution_report_path(pp))
+
+                # If we are here, the file is a valid report file.
+                return include_all or (
+                    report_info.status == MethodExecutionStatus.ExecutionSuccess
+                )
+
+            except Exception as exc:
+                log.info(f"Error processing report {pp}: {type(exc)}: {exc!s}")
+                log.debug(traceback.format_exc())
+
+        return tuple(
+            filter(
+                check_report,
+                map(lambda x: x.stem, self.execution_reports_folder.glob("*.json")),
+            )
+        )
 
     def analysis_reports(self, include_all: bool = False):
         """Get list of analysis reports in program"""
@@ -469,7 +488,8 @@ class LocalStorage(StorageBackend):
         pp.unlink(missing_ok=True)
 
     def execution_report_remove(self, identifier: str):
-        raise NotImplementedError
+        pp = self._execution_report_path(identifier)
+        pp.unlink(missing_ok=True)
 
     def analysis_report_remove(self, identifier: str):
         raise NotImplementedError
