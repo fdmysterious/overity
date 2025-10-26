@@ -300,6 +300,18 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
         log.info(f" - Compatible targets: {ctx.bench_instance.compatible_targets}")
         log.info(f" - Capabilities:       {ctx.bench_instance.capabilities}")
 
+        # -> Start bench
+        log.info("Start the bench")
+        ctx.bench_instance.bench_start()
+
+        # -> Sanity check
+        log.info("Sanity check for bench")
+        ctx.bench_instance.sanity_check()
+
+        # -> Set initial state
+        log.info("Set initial state for bench")
+        ctx.bench_instance.state_initial()
+
     # Init is done!
     ctx.init_ok = True
 
@@ -314,6 +326,18 @@ def exception_handler(ctx: FlowCtx, exc_type, exc_value, exc_traceback):
 
 def exit_handler(ctx: FlowCtx):
     log.info("Exiting method execution")
+
+    # Bench cleanup if in DMQ method
+    if ctx.method_kind == MethodKind.MeasurementQualification:
+        log.info("Bench cleanup")
+        try:
+            if ctx.bench_instance:
+                ctx.bench_instance.bench_cleanup()
+
+        except Exception as exc:
+            log.error("Error when trying to stop the bench")
+            ctx.exceptions.append(exc)
+            log.error("".join(traceback.format_exception(exc)))
 
     # Set end date
     ctx.report.date_ended = dt.now()
