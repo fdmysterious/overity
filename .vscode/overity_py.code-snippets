@@ -1,0 +1,71 @@
+{
+	"Python header": {
+		"scope": "python",
+		"prefix": "pyHead",
+		"body": [
+			"\"\"\"",
+			"${1}",
+			"${1/./=/gi}",
+			"",
+			"**$CURRENT_MONTH_NAME $CURRENT_YEAR**",
+			"",
+			"- ${3:John Doe} (${4:john.doe@email.com})",
+			"",
+			"> This file is part of the Overity.ai project, and is licensed under",
+			"> the terms of the Apache 2.0 license. See the LICENSE file for more",
+			"> information.",
+			"\"\"\"",
+			"",
+			"${0}"
+		]
+	},
+
+	"Method head": {
+		"scope": "python",
+		"prefix": "mtdHead",
+		"body": [
+			"\"\"\"",
+			"${1}",
+			"${1/./=/gi}",
+			"",
+			"**Created**: $CURRENT_MONTH_NAME $CURRENT_YEAR",
+			"",
+			"- ${2: John Doe} (${3:john.doe@email.com})",
+			"",
+			"${4: Description}",
+			"\"\"\"",
+			"${0}"
+		]
+	},
+
+	"Section comment": {
+		"scope": "python",
+		"prefix": "section",
+		"body": [
+			"####################################################",
+			"# ${1}",
+			"####################################################",
+			"",
+			"${0}"
+		]
+	},
+
+	"Subsection comment": {
+		"scope": "python",
+		"prefix": "ssection",
+		"body": [
+			"# ---------------------------------- ${1}",
+			"",
+			"${0}"
+		]
+	},
+
+	"Import annotations": {
+		"scope": "python",
+		"prefix": "fanote",
+		"body": [
+			"from __future__ import annotations",
+			"${0}"
+		]
+	}
+}
