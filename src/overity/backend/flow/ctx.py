@@ -23,6 +23,13 @@ from overity.storage.local import LocalStorage
 from overity.model.report import MethodReport
 from overity.model.traceability import ArtifactKey
 
+from overity.model.general_info.bench import (
+    BenchInstanciationMetadata,
+    BenchAbstractionMetadata,
+)
+from overity.bench.abstraction import BenchAbstraction
+
+
 from enum import Enum
 
 
@@ -57,6 +64,15 @@ class FlowCtx:
     # list of encountered exceptions
     exceptions: list[BaseException]
 
+    # ---------------------------------- Bench specifics
+    # -> These should be used only when running a measurement / qualification method
+
+    bench_info: BenchInstanciationMetadata
+    bench_abstraction: BenchAbstractionMetadata
+    bench_instance: type[BenchAbstraction]
+
+    # ---------------------------------- Default CTX init
+
     @classmethod
     def default(cls):
         return cls(
@@ -75,4 +91,7 @@ class FlowCtx:
             args=None,
             tmpdirs=[],
             exceptions=[],
+            bench_info=None,
+            bench_abstraction=None,
+            bench_instance=None,
         )

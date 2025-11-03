@@ -26,6 +26,8 @@ from datetime import datetime as dt
 from dataclasses import dataclass
 
 from overity.backend import program
+from overity.backend import bench as b_bench
+
 from overity.storage.local import LocalStorage
 
 from overity.model.general_info.method import MethodKind
@@ -62,7 +64,7 @@ from overity.model.report.metrics import (
 
 from overity.exchange import report_json
 from overity.exchange.method_common import file_py, file_ipynb
-from overity.errors import UnidentifiedMethodError, UninitAPIError
+from overity.errors import UnidentifiedMethodError, UninitAPIError, NotInDMQError
 
 from overity.backend.flow.ctx import FlowCtx, RunMode
 from overity.backend.flow import environment as b_env
@@ -123,6 +125,16 @@ def _api_guard(fkt):
     return call
 
 
+def _dmq_guard(fkt):
+    def call(ctx, *args, **kwargs):
+        if not ctx.method_kind == MethodKind.MeasurementQualification:
+            raise NotInDMQError()
+        else:
+            return fkt(ctx, *args, **kwargs)
+
+    return call
+
+
 def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     log.info(f"Initialize API for method {method_path}")
     date_started = dt.now()
@@ -167,6 +179,7 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
 
     # Initialize run traceability information
     # TODO: For other types
+    # TODO: This is ugly.
     if ctx.method_kind == MethodKind.TrainingOptimization:
         ctx.report.method_key = ArtifactKey(
             kind=ArtifactKind.TrainingOptimizationMethod, id=ctx.method_slug
@@ -176,6 +189,35 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
         )
         ctx.report.run_key = ArtifactKey(
             kind=ArtifactKind.OptimizationRun, id=ctx.report.uuid
+        )
+
+        # Add link between run and report
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.report_key,
+                b=ctx.report.run_key,
+                kind=ArtifactLinkKind.ReportFor,
+            )
+        )
+
+        # Add link between run and method
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.run_key,
+                b=ctx.report.method_key,
+                kind=ArtifactLinkKind.MethodUse,
+            )
+        )
+
+    elif ctx.method_kind == MethodKind.MeasurementQualification:
+        ctx.report.method_key = ArtifactKey(
+            kind=ArtifactKind.MeasurementQualificationMethod, id=ctx.method_slug
+        )
+        ctx.report.report_key = ArtifactKey(
+            kind=ArtifactKind.ExecutionReport, id=ctx.report.uuid
+        )
+        ctx.report.run_key = ArtifactKey(
+            kind=ArtifactKind.ExecutionRun, id=ctx.report.uuid
         )
 
         # Add link between run and report
@@ -216,6 +258,60 @@ def init(ctx: FlowCtx, method_path: Path, run_mode: RunMode):
     # Add exit handler to save report file
     atexit.register(exit_handler, ctx)
 
+    # For DMQ Method, extract bench information
+    if ctx.method_kind == MethodKind.MeasurementQualification:
+        bench_slug = (
+            b_env.bench()
+        )  # Get bench slug from OVERITY_BENCH env var, raise exception if not defined
+        log.info(
+            f"Running a measurement/qualification method. Load bench information for {bench_slug}"
+        )
+
+        ctx.bench_infos = b_bench.load_bench_infos(ctx.pdir, bench_slug)
+        ctx.bench_abstraction = b_bench.load_bench_abstraction_infos(
+            ctx.pdir, ctx.bench_infos.abstraction_slug
+        )
+        ctx.bench_instance = b_bench.instanciate(ctx.pdir, bench_slug)
+
+        # -> Traceability information
+        k_bench = ArtifactKey(kind=ArtifactKind.BenchInstanciation, id=bench_slug)
+        k_abstr = ArtifactKey(
+            kind=ArtifactKind.BenchAbstraction, id=ctx.bench_infos.abstraction_slug
+        )
+
+        ctx.report.traceability_graph.add(
+            ArtifactLink(a=k_bench, b=k_abstr, kind=ArtifactLinkKind.InstanciateBench)
+        )
+        ctx.report.traceability_graph.add(
+            ArtifactLink(
+                a=ctx.report.run_key, b=k_bench, kind=ArtifactLinkKind.BenchUse
+            )
+        )
+
+        # -> Log some infos
+        log.info("Bench information:")
+        log.info(
+            f" - Name:               {ctx.bench_infos.display_name} ({bench_slug})"
+        )
+        log.info(
+            f" - Instanciates:       {ctx.bench_abstraction.display_name} ({ctx.bench_abstraction.slug})"
+        )
+        log.info(f" - Compatible tags:    {ctx.bench_instance.compatible_tags}")
+        log.info(f" - Compatible targets: {ctx.bench_instance.compatible_targets}")
+        log.info(f" - Capabilities:       {ctx.bench_instance.capabilities}")
+
+        # -> Start bench
+        log.info("Start the bench")
+        ctx.bench_instance.bench_start()
+
+        # -> Sanity check
+        log.info("Sanity check for bench")
+        ctx.bench_instance.sanity_check()
+
+        # -> Set initial state
+        log.info("Set initial state for bench")
+        ctx.bench_instance.state_initial()
+
     # Init is done!
     ctx.init_ok = True
 
@@ -230,6 +326,18 @@ def exception_handler(ctx: FlowCtx, exc_type, exc_value, exc_traceback):
 
 def exit_handler(ctx: FlowCtx):
     log.info("Exiting method execution")
+
+    # Bench cleanup if in DMQ method
+    if ctx.method_kind == MethodKind.MeasurementQualification:
+        log.info("Bench cleanup")
+        try:
+            if ctx.bench_instance:
+                ctx.bench_instance.bench_cleanup()
+
+        except Exception as exc:
+            log.error("Error when trying to stop the bench")
+            ctx.exceptions.append(exc)
+            log.error("".join(traceback.format_exception(exc)))
 
     # Set end date
     ctx.report.date_ended = dt.now()
@@ -538,3 +646,18 @@ class MetricSaver:
 @_api_guard
 def metrics_save(ctx: FlowCtx):
     return MetricSaver(ctx)
+
+
+####################################################
+# Bench API
+####################################################
+
+# TODO # Design: Just allow to get the instance, or create a specific
+# API call for each bench method? How to manage specific API calls
+# Given by additional capabilities?
+
+
+@_api_guard
+@_dmq_guard
+def bench_instance(ctx):
+    return ctx.bench_instance

@@ -95,3 +95,12 @@ def dataset_package(slug: str, name: str, description: str | None = None):
 
 def metrics_save():
     return flow.metrics_save(_CTX)
+
+
+####################################################
+# Bench API
+####################################################
+
+
+def bench_instance():
+    return flow.bench_instance(_CTX)

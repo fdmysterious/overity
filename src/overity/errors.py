@@ -64,6 +64,13 @@ class UnknownMethodError(Exception):
         super().__init__("Can't find called method file path")
 
 
+class NotInDMQError(Exception):
+    def __init__(self):
+        super().__init__(
+            "Current running method is not a measurement/qualification method"
+        )
+
+
 class UninitAPIError(Exception):
     def __init__(self):
         super().__init__("Please initialize API with overity.api.init() before using")
@@ -116,3 +123,42 @@ class ReportNotFound(Exception):
         self.program_slug = program_slug
         self.report_type = report_type
         self.identifier = identifier
+
+
+class InvalidBenchSettingsError(Exception):
+    def __init__(
+        self,
+        bench_slug: str,
+        bench_settings: dict[str, str | int | float | bool],
+        exc: Exception,
+    ):
+        super().__init__(
+            f"Failed to parse bench settings for bench {bench_slug} ({type(exc)}): {exc!s}"
+        )
+
+        self.bench_slug = bench_slug
+        self.bench_settings = bench_settings
+        self.exc = exc
+
+
+class BenchInstanciationError(Exception):
+    def __init__(
+        self,
+        bench_slug: str,
+        bench_settings: dict[str, str | int | float | bool],
+        exc: Exception,
+    ):
+        super().__init__(
+            f"Failed to instanciate bench {bench_slug} ({type(exc)}): {exc!s}"
+        )
+
+        self.bench_slug = bench_slug
+        self.bench_settings = bench_settings
+        self.exc = exc
+
+
+class NoBenchDefinedError(Exception):
+    def __init__(self):
+        super().__init__(
+            "No bench defined to execute the measure/qualification method. Please set the OVERITY_BENCH variable to an existing bench in programme"
+        )
