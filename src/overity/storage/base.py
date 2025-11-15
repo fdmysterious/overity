@@ -242,9 +242,6 @@ class StorageBackend(ABC):
     def method_report_uuid_get(self, kind: MethodKind):
         """Get an available report for a given method kind"""
 
-        # FIXME: How to process Measurement qualification and deployment methods, as it should be
-        # merged into the same execution report?
-
         if kind == MethodKind.TrainingOptimization:
             return self.optimization_report_uuid_get()
         elif kind == MethodKind.MeasurementQualification:

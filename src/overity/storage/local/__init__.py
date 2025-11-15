@@ -168,8 +168,6 @@ class LocalStorage(StorageBackend):
         return self.agents_folder / f"{slug}.tar.gz"
 
     def method_run_report_path(self, run_uuid: str, method_kind: MethodKind):
-        # FIXME: How to process Deployment/Measurement qualification?
-
         if method_kind == MethodKind.TrainingOptimization:
             return self._optimization_report_path(run_uuid)
         elif method_kind == MethodKind.MeasurementQualification:
