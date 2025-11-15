@@ -96,6 +96,11 @@ exclude_lines = [
   "if TYPE_CHECKING:",
 ]
 
+[tool.pyright]
+executionEnvironments = [{root = "src"}]
+venvPath = ".hatch"
+venv = "hatch-test.py3.13"
+
 
 ##################################################
 # Environments configuration
