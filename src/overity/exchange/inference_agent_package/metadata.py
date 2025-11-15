@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from overity.model.inference_agent.metadata import (
     InferenceAgentAuthor,
@@ -28,7 +29,7 @@ from overity.model.inference_agent.metadata import (
 ####################################################
 
 
-def _metadata_decode_author(data: dict[str, any]):
+def _metadata_decode_author(data: dict[str, str]) -> InferenceAgentAuthor:
     name = data["name"]
     email = data["email"]
     contribution = data.get("contribution")
@@ -36,14 +37,14 @@ def _metadata_decode_author(data: dict[str, any]):
     return InferenceAgentAuthor(name=name, email=email, contribution=contribution)
 
 
-def _metadata_decode_maintainer(data: dict[str, any]):
+def _metadata_decode_maintainer(data: dict[str, str]):
     name = data["name"]
     email = data["email"]
 
     return InferenceAgentMaintainer(name=name, email=email)
 
 
-def _metadata_decode(data: dict[str, any]):
+def _metadata_decode(data: dict[str, Any]) -> InferenceAgentMetadata:
     name = data["name"]
     version = data["version"]
     authors = [_metadata_decode_author(x) for x in data["authors"]]
@@ -63,7 +64,7 @@ def _metadata_decode(data: dict[str, any]):
     )
 
 
-def from_dict(data: dict[str, str]):
+def from_dict(data: dict[str, Any]) -> InferenceAgentMetadata:
     # Schema validation
     # TODO
 
