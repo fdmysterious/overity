@@ -58,8 +58,8 @@ class MethodReport:
     uuid: str
     program: str  # Name of programme
     date_started: datetime
-    date_ended: datetime
-    status: MethodExecutionStatus
+    date_ended: datetime | None
+    status: MethodExecutionStatus | None
     environment: dict[str, str]
     context: dict[str, str]
     traceability_graph: ArtifactGraph
@@ -83,8 +83,8 @@ class MethodReport:
             program=program,
             method_info=method_info,
             date_started=date_started,
-            date_ended=None,
-            status=None,
+            date_ended=date_started,
+            status=MethodExecutionStatus.ExecutionSuccess,
             environment={},
             context={},
             traceability_graph=ArtifactGraph.default(),

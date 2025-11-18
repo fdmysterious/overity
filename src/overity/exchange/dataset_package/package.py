@@ -66,9 +66,9 @@ def package_archive_create(dataset_data: DatasetPackageInfo, output_path: Path):
 def _process_metadata(archive_path: Path, tf: tarfile.TarFile):
     """Utility function to load metadata from archive file"""
 
-    info_json = tf.getmember("dataset-metadata.json")
-
-    if info_json is None:
+    try:
+        info_json = tf.getmember("dataset-metadata.json")
+    except KeyError:
         raise MalformedDatasetPackage(archive_path, "No dataset-metadata.json file")
 
     with tf.extractfile(info_json) as fhandle:
@@ -79,9 +79,10 @@ def _process_metadata(archive_path: Path, tf: tarfile.TarFile):
 
 def _process_dataset_data(archive_path: Path, tf: tarfile.TarFile, target_folder: Path):
     """Utility function to extract the dataset data from package archive"""
-    data_folder = tf.getmember("data")
 
-    if data_folder is None:
+    try:
+        _ = tf.getmember("data")
+    except KeyError:
         raise MalformedDatasetPackage(archive_path, "No data/ folder in package")
 
     # List of files in data folder

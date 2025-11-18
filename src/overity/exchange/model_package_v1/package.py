@@ -61,9 +61,9 @@ def package_archive_create(model_data: MLModelPackage, output_path: Path):
 def _process_metadata(archive_path: Path, tf: tarfile.TarFile):
     """Utility function to load metadata from archive file"""
 
-    info_json = tf.getmember("model-metadata.json")
-
-    if info_json is None:
+    try:
+        info_json = tf.getmember("model-metadata.json")
+    except KeyError:
         raise MalformedModelPackage(archive_path, "No model-metadata.json file")
 
     with tf.extractfile(info_json) as fhandle:
@@ -79,9 +79,10 @@ def _process_model_file(
     target_folder: Path,
 ):
     target_folder = Path(target_folder)
-    model_file = tf.getmember(metadata.model_file)
 
-    if model_file is None:
+    try:
+        model_file = tf.getmember(metadata.model_file)
+    except KeyError:
         raise MalformedModelPackage(
             archive_path,
             f"Indicated model_file, '{metadata.model_file}', is not found in archive",

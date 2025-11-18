@@ -14,9 +14,8 @@ Overity.ai report encoder/decoder
 from __future__ import annotations
 
 import json
-
+from typing import Any
 from pathlib import Path
-
 from overity.model.report import (
     MethodExecutionStatus,
     MethodReportLogItem,
@@ -30,10 +29,7 @@ from overity.model.traceability import (
     ArtifactLinkKind,
     ArtifactKind,
 )
-
-from overity.model.report import metrics
-from overity.model.report.metrics import Metric
-
+from overity.model.report.metrics import Metric, from_data as metrics_from_data
 from datetime import datetime as dt
 
 
@@ -52,7 +48,7 @@ def _encode_method_author(author: MethodAuthor) -> dict[str, str]:
     return x
 
 
-def _encode_method_info(method: MethodInfo) -> dict[str, str]:
+def _encode_method_info(method: MethodInfo) -> dict[str, Any]:
     x = {
         "slug": method.slug,
         "kind": method.kind.value,
@@ -77,7 +73,7 @@ def _encode_artifact_key(x: ArtifactKey) -> dict[str, str]:
     }
 
 
-def _encode_traceability_graph(gr: ArtifactGraph) -> list[dict[str, str]]:
+def _encode_traceability_graph(gr: ArtifactGraph) -> dict[str, Any]:
     def do_item(x):
         return {
             "a": _encode_artifact_key(x.a),
@@ -86,7 +82,7 @@ def _encode_traceability_graph(gr: ArtifactGraph) -> list[dict[str, str]]:
         }
 
     return {
-        "links": list(map(do_item, gr.links)),
+        "links": [do_item(link) for link in gr.links],
         "metadata": [
             {
                 "kind": key.kind.value,
@@ -97,10 +93,8 @@ def _encode_traceability_graph(gr: ArtifactGraph) -> list[dict[str, str]]:
         ],
     }
 
-    return list(map(do_item, gr.links))
 
-
-def _encode_logs(x: list[MethodReportLogItem]) -> list[dict[str, str]]:
+def _encode_logs(x: list[MethodReportLogItem]) -> list[dict[str, Any]]:
     def do_item(x):
         return {
             "dt": x.timestamp.isoformat(),
@@ -109,10 +103,10 @@ def _encode_logs(x: list[MethodReportLogItem]) -> list[dict[str, str]]:
             "message": x.message,
         }
 
-    return list(map(do_item, x))
+    return [do_item(item) for item in x]
 
 
-def _encode_metrics(x: dict[str, Metric]) -> list[dict[str, any]]:
+def _encode_metrics(x: dict[str, Metric]) -> dict[str, Any]:
     return {k: v.data() for k, v in x.items()}
 
 
@@ -128,7 +122,7 @@ def to_file(report: MethodReport, path: Path):
         "method_info": _encode_method_info(report.method_info),
         "traceability_graph": _encode_traceability_graph(report.traceability_graph),
         "logs": _encode_logs(report.logs),
-        "metrics": _encode_metrics(report.metrics),
+        "metrics": _encode_metrics(report.metrics or {}),
         # outputs TODO #
     }
 
@@ -147,7 +141,7 @@ def _parse_method_author(data: dict[str, str]) -> MethodAuthor:
     )
 
 
-def _parse_method_info(data: dict[str, str]) -> MethodInfo:
+def _parse_method_info(data: dict[str, Any]) -> MethodInfo:
     return MethodInfo(
         slug=data["slug"],
         kind=MethodKind(data["kind"]),
@@ -155,15 +149,15 @@ def _parse_method_info(data: dict[str, str]) -> MethodInfo:
         authors=[_parse_method_author(x) for x in data["authors"]],
         metadata=data["metadata"],
         description=data.get("description", None),
-        path=Path(data.get("path", None)),
+        path=Path(data["path"]) if data.get("path") else None,
     )
 
 
-def _parse_artifact_key(data: dict[str, any]) -> ArtifactKey:
+def _parse_artifact_key(data: dict[str, Any]) -> ArtifactKey:
     return ArtifactKey(kind=ArtifactKind(data["kind"]), id=data["id"])
 
 
-def _parse_traceability_graph(data: list[dict[str, any]]) -> ArtifactGraph:
+def _parse_traceability_graph(data: dict[str, Any]) -> ArtifactGraph:
     def process_item(x):
         return ArtifactLink(
             a=_parse_artifact_key(x["a"]),
@@ -171,18 +165,19 @@ def _parse_traceability_graph(data: list[dict[str, any]]) -> ArtifactGraph:
             kind=ArtifactLinkKind(x["kind"]),
         )
 
-    def process_metadata(x):
-        parsed_dict = {_parse_artifact_key(it): it["data"] for it in x}
-
+    def process_metadata(metadata_list):
+        parsed_dict = {
+            _parse_artifact_key(item): item["data"] for item in metadata_list
+        }
         return parsed_dict
 
     return ArtifactGraph(
-        links=list(map(process_item, data["links"])),
+        links={process_item(link) for link in data["links"]},
         metadata=process_metadata(data["metadata"]),
     )
 
 
-def _parse_logs(data: list[dict[str, any]]) -> list[MethodReportLogItem]:
+def _parse_logs(data: list[dict[str, Any]]) -> list[MethodReportLogItem]:
     def process_item(x):
         return MethodReportLogItem(
             timestamp=dt.fromisoformat(x["dt"]),
@@ -191,11 +186,11 @@ def _parse_logs(data: list[dict[str, any]]) -> list[MethodReportLogItem]:
             message=x["message"],
         )
 
-    return list(map(process_item, data))
+    return [process_item(item) for item in data]
 
 
-def _parse_metrics(data: dict[str, dict[str, any]]) -> list[Metric]:
-    return {k: metrics.from_data(v) for k, v in data.items()}
+def _parse_metrics(data: dict[str, dict[str, Any]]) -> dict[str, Metric]:
+    return {k: metrics_from_data(v) for k, v in data.items()}
 
 
 def from_file(path: Path):
